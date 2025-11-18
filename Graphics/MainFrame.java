@@ -1,5 +1,6 @@
 import javax.swing.JFrame;
-import javas.swing.JPanel;
+import javax.swing.JPanel;
+import java.awt.CardLayout;
 
 /**
  * The frame which is going to be viewed as the app BrainBlast. This is a JFrame and is the screen which is going 
@@ -20,15 +21,19 @@ import javas.swing.JPanel;
 public class MainFrame extends JFrame {
    /** Private panel which is going to hold all the other panels. */
    private static JPanel mainPanel;
+   /** The width of the screen. */
+   public static final int WIDTH = 800;
+   /** The height of the screen. */
+   public static final int HEIGHT = 600;
 
    /**
     * Constructor for the frame.
     */
    public MainFrame() {
       // graphics specifications:
-      this.setSize(800,600);
+      this.setSize(WIDTH, HEIGHT);
       this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-      this.setTitle("BrainBlast!: Home");
+      this.setTitle("BrainBlast!");
       
       // prepare and add the mainPanel
       prepareMainPanel();
@@ -39,8 +44,14 @@ public class MainFrame extends JFrame {
    /**
     * This function will load all of the other screens (panels) and group them into one.
     */
-    public static void prepareMainPanel() {
+   public static void prepareMainPanel() {
+      // the implemetation will be adding all of the other panels to the mainPanel "Container" and relying on this 
+      // panel for it's CardLayout.
+      CardLayout cl = new CardLayout();
+      mainPanel = new JPanel(cl);
       
-    };
+      // then add the panels
+      mainPanel.add(new HomePanel(), "Home"); // this is the first added, by default will be visible first.
+   };
    
 }
