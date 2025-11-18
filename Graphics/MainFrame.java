@@ -46,7 +46,7 @@ public class MainFrame extends JFrame {
    /**
     * This function will load all of the other screens (panels) and group them into one.
     */
-   public static void prepareMainPanel() {
+   private static void prepareMainPanel() {
       // the implemetation will be adding all of the other panels to the mainPanel "Container" and relying on this 
       // panel for it's CardLayout.
       CardLayout cl = new CardLayout();
@@ -54,9 +54,11 @@ public class MainFrame extends JFrame {
       
       // then add the panels
       mainPanel.add(new HomePanel(), "Home"); // this is the first added, by default will be visible first.
+   
+      mainPanel.setVisible(true);
    };
    
-   
+   // this is for testing (until we add the BrainBlast.java class!)
    public static void main(String[] args) {
       new MainFrame();
    }
