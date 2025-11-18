@@ -39,6 +39,8 @@ public class MainFrame extends JFrame {
       prepareMainPanel();
       
       this.add(mainPanel);
+      
+      this.setVisible(true);
    }
    
    /**
@@ -54,4 +56,8 @@ public class MainFrame extends JFrame {
       mainPanel.add(new HomePanel(), "Home"); // this is the first added, by default will be visible first.
    };
    
+   
+   public static void main(String[] args) {
+      new MainFrame();
+   }
 }
