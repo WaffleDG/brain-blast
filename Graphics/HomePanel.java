@@ -1,10 +1,13 @@
 import javax.swing.JPanel;
 import javax.swing.JLabel;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.imageio.ImageIO;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.awt.Graphics;
 import java.io.File;
 import java.io.IOException;
-import java.awt.image.BufferedImage;
-import javax.imageio.ImageIO;
-import java.awt.Graphics;
 
 /**
  * Defines the Home panel for Brain Blast! This will feature buttons to allow the user to change frames to the
@@ -26,6 +29,8 @@ import java.awt.Graphics;
 public class HomePanel extends JPanel {
    /** variable to save the background image for this panel. */
    private static BufferedImage backgroundImage;
+   /** variable for the logo image */
+   private static BufferedImage logoImage;
 
    /**
     * The HomePanel will be the exact same every time, featuring a background, screen, and buttons as described above.
@@ -34,7 +39,11 @@ public class HomePanel extends JPanel {
       // we're going to load the assets of this image.
       loadAssets();
       
-      this.add(new JLabel("to be done"));
+      // set the layout to be a vertical layout
+      this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+      
+      // adding the logoImage, as a smaller scaled instance
+      this.add(new JLabel(new ImageIcon(logoImage.getScaledInstance(200, 150, Image.SCALE_SMOOTH))));
       
       this.setVisible(true);
    }
@@ -45,17 +54,28 @@ public class HomePanel extends JPanel {
    private static void loadAssets() {
       // as with anything that deals with files, IOExceptions need to be caught.
       try {
+         /// background image
          // create the file
          File bgSource = new File("Assets/HomePanel Background.png");
          
          // read it as a BufferedImage
          backgroundImage = ImageIO.read(bgSource);
          
+         /// logo image
+         // create the file
+         File logoSource = new File("Assets/Brain Blast Logo.png");
+         
+         // read the file as a bufferedImage
+         logoImage = ImageIO.read(logoSource);
+         
          return;
       }
       catch (IOException ioe) {
          System.out.println("Error loading assets");
          ioe.printStackTrace();
+         
+         // do not load program w/o assets
+         System.exit(0);
       }
    }
    
