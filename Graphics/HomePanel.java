@@ -1,8 +1,10 @@
 import javax.swing.JPanel;
 import javax.swing.JLabel;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.imageio.ImageIO;
+import java.awt.Component;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.awt.Graphics;
@@ -43,7 +45,10 @@ public class HomePanel extends JPanel {
       this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
       
       // adding the logoImage, as a smaller scaled instance
-      this.add(new JLabel(new ImageIcon(logoImage.getScaledInstance(200, 150, Image.SCALE_SMOOTH))));
+      JLabel logoIcon = new JLabel(new ImageIcon(logoImage.getScaledInstance(320, 240, Image.SCALE_SMOOTH)));
+      // align it to center
+      logoIcon.setAlignmentX(Component.CENTER_ALIGNMENT);
+      this.add(logoIcon);
       
       this.setVisible(true);
    }
