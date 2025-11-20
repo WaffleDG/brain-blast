@@ -1,13 +1,15 @@
 import javax.swing.JPanel;
 import javax.swing.JLabel;
+import javax.swing.JButton;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.imageio.ImageIO;
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
-import java.awt.Graphics;
 import java.io.File;
 import java.io.IOException;
 
@@ -44,11 +46,26 @@ public class HomePanel extends JPanel {
       // set the layout to be a vertical layout
       this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
       
+      // add some vertical glue to center objects in the layout
+      this.add(Box.createVerticalGlue());
+      
+      ///// Body of HomePanel
       // adding the logoImage, as a smaller scaled instance
       JLabel logoIcon = new JLabel(new ImageIcon(logoImage.getScaledInstance(320, 240, Image.SCALE_SMOOTH)));
       // align it to center
       logoIcon.setAlignmentX(Component.CENTER_ALIGNMENT);
       this.add(logoIcon);
+      
+      // adding a button for now
+      JButton createSet = new JButton("Create a Set");
+      createSet.setPreferredSize(new Dimension(100, 200));
+      createSet.setMaximumSize(createSet.getPreferredSize());
+      createSet.setAlignmentX(Component.CENTER_ALIGNMENT);
+      this.add(createSet);
+      
+      
+      // add more vertical glue to center
+      this.add(Box.createVerticalGlue());
       
       this.setVisible(true);
    }

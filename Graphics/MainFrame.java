@@ -34,6 +34,7 @@ public class MainFrame extends JFrame {
       this.setSize(WIDTH, HEIGHT);
       this.setDefaultCloseOperation(EXIT_ON_CLOSE);
       this.setTitle("BrainBlast!");
+      this.setResizable(false);
       
       // prepare and add the mainPanel
       prepareMainPanel();
