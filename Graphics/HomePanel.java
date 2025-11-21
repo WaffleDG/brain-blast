@@ -56,12 +56,19 @@ public class HomePanel extends JPanel {
       logoIcon.setAlignmentX(Component.CENTER_ALIGNMENT);
       this.add(logoIcon);
       
-      // adding a button for now
+      // adding the create set button
       JButton createSet = new JButton("Create a Set");
-      createSet.setPreferredSize(new Dimension(100, 200));
+      createSet.setPreferredSize(new Dimension(200, 50));
       createSet.setMaximumSize(createSet.getPreferredSize());
       createSet.setAlignmentX(Component.CENTER_ALIGNMENT);
       this.add(createSet);
+      
+      // adding the view sets button
+      JButton viewSets = new JButton("View Sets");
+      viewSets.setPreferredSize(new Dimension(200, 50));
+      viewSets.setMaximumSize(createSet.getPreferredSize());
+      viewSets.setAlignmentX(Component.CENTER_ALIGNMENT);
+      this.add(viewSets);
       
       
       // add more vertical glue to center
