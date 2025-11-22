@@ -33,6 +33,7 @@ import java.io.IOException;
 public class EditSetPanel extends JPanel {
    /**
     * Constructor which takes a file path, reads the file or creates one if not already existing, loads the set and the graphics from that.
+    * test
     */
    public EditSetPanel(String filePath) {
       
