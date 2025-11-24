@@ -63,6 +63,9 @@ public class HomePanel extends JPanel {
       createSet.setAlignmentX(Component.CENTER_ALIGNMENT);
       this.add(createSet);
       
+      // adding some space between buttons
+      this.add(Box.createRigidArea(new Dimension(200, 5)));
+      
       // adding the view sets button
       JButton viewSets = new JButton("View Sets");
       viewSets.setPreferredSize(new Dimension(200, 50));
