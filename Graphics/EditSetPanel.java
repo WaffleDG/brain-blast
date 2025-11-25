@@ -3,6 +3,9 @@ import java.util.Scanner;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
 import javax.swing.JButton;
+import javax.swing.JTextField;
+import javax.swing.JSeparator;
+import javax.swing.SwingConstants;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -14,6 +17,9 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+
+
+import javax.swing.JFrame;
 
 /**
  * Screen for creating or editing new sets for Brain Blast! This will provide the user the ability to create a new set, entering as many keyword-definition pairs as they want!
@@ -48,23 +54,8 @@ public class EditSetPanel extends JPanel {
     * Constructor without filePath for when the file is just created - standard name is Unnamed Set #
     */
    public EditSetPanel() {
-      // finding a fileName that will work -- checks if 1 exists, if not, checks if 2 exists, and so on
-      // keeping track of counter and file name
-      int counter = 1;
-      String fileName = "Unnamed Set "; // trailing space
-      
-      // setting first file name
-      File newFile = new File(dir + fileName + counter + ".txt");
-      
-      while (newFile.exists()) { // if and while it already exists,
-         // increment counter
-         counter++;
-         // test with new file
-         newFile = new File(dir + fileName + counter + ".txt");
-      }
-      
       // call the other constructor with this file.
-      this(fileName + counter + ".txt");
+      this(newUnnamedFileName());
    }
    
 
@@ -72,7 +63,7 @@ public class EditSetPanel extends JPanel {
     * Constructor which takes a file name, reads the file or creates one if not already existing, loads the set and the graphics from that.
     */
    public EditSetPanel(String fileName) {
-      String filePath = dir + fileName;
+      String filePath = dir + fileName + ".txt";
       loadFile(filePath);
       
       /*
@@ -88,18 +79,74 @@ public class EditSetPanel extends JPanel {
                 Add another
       */
       
-     // set the title to reflect the set
-     this.setTitle("Editing Set '" + filePath + "'");
-      
      // set the layout to be a vertical layout
      this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
      
+     // padding
+     this.add(Box.createVerticalStrut(5));
+     
+     ////////////////////////////////////////////// HEADER //////////////////////////////////////////////
+     JPanel header = new JPanel();
+     
+     // horizontal layout for this one
+     header.setLayout(new BoxLayout(header, BoxLayout.X_AXIS));
+     
      // creating two JButtons: one to close and one to save
-     JButton closeButton = new JButton(
-      
+     JButton closeButton = new JButton("close"); // TO DO: make an icon ************************************************
+     JButton saveButton = new JButton("save"); // TO DO: make an icon **************************************************
+     
+     // creating the text field
+     JTextField renameFileBox = new JTextField(20);
+     renameFileBox.setMaximumSize(renameFileBox.getPreferredSize()); // setting the max size to the preferred
+     renameFileBox.setText(fileName);
+     
+     JLabel renameLabel = new JLabel("Set Name:");
+     
+     // fill the header panel
+     header.add(closeButton);
+     // space
+     header.add(Box.createHorizontalGlue());
+     header.add(renameLabel);
+     header.add(renameFileBox);
+     // space
+     header.add(Box.createHorizontalGlue());
+     header.add(saveButton);
+     
+     header.setVisible(true);
+     
+     ////////////////////////////////////////////// BODY //////////////////////////////////////////////
+     
+     // to do lol
+     
+     ////////////////////////////////////////////// COMPILE //////////////////////////////////////////////
+     
+     this.add(header);
+     this.add(new JSeparator(SwingConstants.HORIZONTAL));
+     
+     this.setVisible(true);
    }
   
-  
+   /**
+    * newUnnamedFileName finds the next unique file name with the start "Unnamed Set " as a txt.
+    */
+   public static String newUnnamedFileName() {
+      // finding a fileName that will work -- checks if 1 exists, if not, checks if 2 exists, and so on
+      // keeping track of counter and file name
+      int counter = 1;
+      String fileName = "Unnamed Set "; // trailing space
+      
+      // setting first file name
+      File newFile = new File(dir + fileName + counter + ".txt");
+      
+      while (newFile.exists()) { // if and while it already exists,
+         // increment counter
+         counter++;
+         // test with new file
+         newFile = new File(dir + fileName + counter + ".txt");
+      }
+      
+      return (fileName + counter + ".txt");
+   }
   
    /**
     * loadFile takes a filePath and creates or gets the corresponding file.
@@ -139,5 +186,17 @@ public class EditSetPanel extends JPanel {
          // do not load program if there's an error with the file
          System.exit(0);
       }
+   }
+   
+   public static void main(String[] args) {
+      JFrame testFrame = new JFrame("BrainBlast - testing debug");
+      EditSetPanel esp = new EditSetPanel("Names to Remember");
+      
+      testFrame.setSize(800, 600);
+      testFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+      testFrame.add(esp);
+      
+      testFrame.setVisible(true);
+      
    }
 }  

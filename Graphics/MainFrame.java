@@ -55,6 +55,10 @@ public class MainFrame extends JFrame {
       
       // then add the panels
       mainPanel.add(new HomePanel(), "Home"); // this is the first added, by default will be visible first.
+      
+      // how to swap
+      // mainPanel.add(new EditSetPanel(), "test");
+      // cl.show(mainPanel, "test");
    
       mainPanel.setVisible(true);
    };
