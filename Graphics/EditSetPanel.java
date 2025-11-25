@@ -47,7 +47,18 @@ public class EditSetPanel extends JPanel {
    public EditSetPanel(String filePath) {
       loadFile(filePath);
       
-      
+      /*
+               Edit Set '<>'
+          -------------------------
+          close               save
+          -------------------------
+            key        definition
+            
+            box             box     
+            box             box
+                    ... 
+                Add another
+      */
       
    }
   
