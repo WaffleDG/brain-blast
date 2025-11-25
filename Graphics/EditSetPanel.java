@@ -41,16 +41,38 @@ public class EditSetPanel extends JPanel {
    /** Private variable for each of the keys of the set */
    private ArrayList<String> keysList;
    
+   /** Private static final variable for the directory */
+   private static final String dir = "../Sets/";
+   
    /**
-    * Constructor without filePath for when the file is just created
-    *
+    * Constructor without filePath for when the file is just created - standard name is Unnamed Set #
     */
+   public EditSetPanel() {
+      // finding a fileName that will work -- checks if 1 exists, if not, checks if 2 exists, and so on
+      // keeping track of counter and file name
+      int counter = 1;
+      String fileName = "Unnamed Set "; // trailing space
+      
+      // setting first file name
+      File newFile = new File(dir + fileName + counter + ".txt");
+      
+      while (newFile.exists()) { // if and while it already exists,
+         // increment counter
+         counter++;
+         // test with new file
+         newFile = new File(dir + fileName + counter + ".txt");
+      }
+      
+      // call the other constructor with this file.
+      this(fileName + counter + ".txt");
+   }
    
 
    /**
-    * Constructor which takes a file path, reads the file or creates one if not already existing, loads the set and the graphics from that.
+    * Constructor which takes a file name, reads the file or creates one if not already existing, loads the set and the graphics from that.
     */
-   public EditSetPanel(String filePath) {
+   public EditSetPanel(String fileName) {
+      String filePath = dir + fileName;
       loadFile(filePath);
       
       /*
