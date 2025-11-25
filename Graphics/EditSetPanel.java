@@ -42,6 +42,11 @@ public class EditSetPanel extends JPanel {
    private ArrayList<String> keysList;
    
    /**
+    * Constructor without filePath for when the file is just created
+    *
+    */
+   
+   /**
     * Constructor which takes a file path, reads the file or creates one if not already existing, loads the set and the graphics from that.
     */
    public EditSetPanel(String filePath) {
@@ -49,16 +54,24 @@ public class EditSetPanel extends JPanel {
       
       /*
                Edit Set '<>'
-          -------------------------
-          close               save
-          -------------------------
-            key        definition
+        |---------------------------|  
+        | close               save  |
+        | ------------------------- |
+            key        definition   |
             
             box             box     
             box             box
                     ... 
                 Add another
       */
+      
+      // set the title to reflect the set
+      this.setTitle("Editing Set '" + filePath + "'");
+      
+      // set the layout to be a vertical layout
+      this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+     
+      
       
    }
   
