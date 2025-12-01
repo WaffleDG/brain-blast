@@ -4,7 +4,9 @@ import javax.swing.JPanel;
 import javax.swing.JLabel;
 import javax.swing.JButton;
 import javax.swing.JTextField;
+import javax.swing.JTextArea;
 import javax.swing.JSeparator;
+import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -79,55 +81,117 @@ public class EditSetPanel extends JPanel {
                 Add another
       */
       
-     // set the layout to be a vertical layout
-     this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+      // set the layout to be a vertical layout
+      this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
      
-     // padding
-     this.add(Box.createVerticalStrut(5));
+      // padding
+      this.add(Box.createVerticalStrut(5));
      
-     ////////////////////////////////////////////// HEADER //////////////////////////////////////////////
-     JPanel header = new JPanel();
+      ////////////////////////////////////////////// HEADER //////////////////////////////////////////////
+      JPanel header = new JPanel();
      
-     // horizontal layout for this one
-     header.setLayout(new BoxLayout(header, BoxLayout.X_AXIS));
+      // horizontal layout for this one
+      header.setLayout(new BoxLayout(header, BoxLayout.X_AXIS));
      
-     // creating two JButtons: one to close and one to save
-     JButton closeButton = new JButton("close"); // TO DO: make an icon ************************************************
-     JButton saveButton = new JButton("save"); // TO DO: make an icon **************************************************
+      // creating two JButtons: one to close and one to save
+      JButton closeButton = new JButton("close"); // TO DO: make an icon ************************************************
+      JButton saveButton = new JButton("save"); // TO DO: make an icon **************************************************
      
-     // creating the text field
-     JTextField renameFileBox = new JTextField(20);
-     renameFileBox.setMaximumSize(renameFileBox.getPreferredSize()); // setting the max size to the preferred
-     renameFileBox.setText(fileName);
+      // creating the text field
+      JTextField renameFileBox = new JTextField(20);
+      renameFileBox.setMaximumSize(renameFileBox.getPreferredSize()); // setting the max size to the preferred
+      renameFileBox.setText(fileName);
      
-     JLabel renameLabel = new JLabel("Set Name:");
+      JLabel renameLabel = new JLabel("Set Name:");
      
-     // fill the header panel
-     header.add(closeButton);
-     // space
-     header.add(Box.createHorizontalGlue());
-     header.add(renameLabel);
-     header.add(renameFileBox);
-     // space
-     header.add(Box.createHorizontalGlue());
-     header.add(saveButton);
+      // fill the header panel
+      header.add(Box.createHorizontalStrut(5));
+      header.add(closeButton);
+      // space
+      header.add(Box.createHorizontalGlue());
+      header.add(renameLabel);
+      header.add(renameFileBox);
+      // space
+      header.add(Box.createHorizontalGlue());
+      header.add(saveButton);
+      header.add(Box.createHorizontalStrut(5));
+      
+      // limit the height of the header.
+      header.setMaximumSize(new Dimension(Integer.MAX_VALUE, header.getPreferredSize().height));
+      
+      ////////////////////////////////////////////// BODY //////////////////////////////////////////////
      
-     header.setVisible(true);
+      // create a panel to hold the key and definition panels
+      JPanel bodyPanel = new JPanel();
+      bodyPanel.setLayout(new BoxLayout(bodyPanel, BoxLayout.X_AXIS));
+      
+      // create panels for the keys and for the definitions
+      JPanel keyPanel = new JPanel();
+      keyPanel.setLayout(new BoxLayout(keyPanel, BoxLayout.Y_AXIS));
+      JPanel defPanel = new JPanel();
+      defPanel.setLayout(new BoxLayout(defPanel, BoxLayout.Y_AXIS));
+      
+      // label the panels
+      JLabel keyLabel = new JLabel("KEY");
+      JLabel defLabel = new JLabel("DEFINITION");
+      
+      keyPanel.add(keyLabel);
+      defPanel.add(defLabel);
      
-     ////////////////////////////////////////////// BODY //////////////////////////////////////////////
+      // for each key-value pair (standard for to allow for indexing through both arrayLists),
+      for (int i = 0; i < keysList.size(); i++) {
+         // create new JTextAreas for the key and value
+         JTextArea keyArea = new JTextArea(15, 20);
+         keyArea.setMaximumSize(keyArea.getPreferredSize());
+         keyArea.setLineWrap(true);
+         keyArea.setText(keysList.get(i));
+         
+         JTextArea defArea = new JTextArea(15, 20);
+         defArea.setMaximumSize(defArea.getPreferredSize());
+         defArea.setLineWrap(true);
+         defArea.setText(definitionsList.get(i));
+         
+         // because JTextAreas do not allow scrolling by default, we have to manually override it. Yay.
+         JScrollPane keySP = new JScrollPane(keyArea);
+         JScrollPane defSP = new JScrollPane(defArea);
+         
+         // padding
+         keyPanel.add(Box.createVerticalStrut(5));
+         defPanel.add(Box.createVerticalStrut(5));
+         
+         // add each scroll pane to their respective panels.
+         keyPanel.add(keySP);
+         defPanel.add(defSP);
+         
+         // padding
+         keyPanel.add(Box.createVerticalStrut(5));
+         defPanel.add(Box.createVerticalStrut(5));
+         
+         // line separator
+         keyPanel.add(new JSeparator(SwingConstants.HORIZONTAL));
+         defPanel.add(new JSeparator(SwingConstants.HORIZONTAL));
+      }
      
-     // create a panel to hold the rows
-     JPanel bodyPanel = new JPanel();
-     bodyPanel.setLayout(new BoxLayout(bodyPanel, BoxLayout.Y_AXIS));
+      // compile bodyPanel
+      bodyPanel.add(Box.createHorizontalStrut(5));
+      bodyPanel.add(keyPanel);
+      bodyPanel.add(new JSeparator(SwingConstants.VERTICAL));
+      bodyPanel.add(defPanel);
+      bodyPanel.add(Box.createHorizontalStrut(5));
+      
+      // create a scrollpane for body panel
+      JScrollPane bodyScroll = new JScrollPane(bodyPanel);
+      bodyScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+      
+      ////////////////////////////////////////////// COMPILE //////////////////////////////////////////////
+      this.add(Box.createVerticalStrut(5));
+      this.add(header);
+      this.add(Box.createVerticalStrut(5));
+      this.add(new JSeparator(SwingConstants.HORIZONTAL));
+      this.add(bodyScroll);
+      
      
-     
-     
-     ////////////////////////////////////////////// COMPILE //////////////////////////////////////////////
-     
-     this.add(header);
-     this.add(new JSeparator(SwingConstants.HORIZONTAL));
-     
-     this.setVisible(true);
+      this.setVisible(true);
    }
   
    /**
