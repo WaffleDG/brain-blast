@@ -73,7 +73,7 @@ public class FindSet extends JFrame {
        //while (sc.hasNext()) {
 
 
-      for (int i = 0; i < existingSets.size(); i++) {
+      for (int i = 0; i < existingSets.size(); i++) { // test comment
          if (searchedName.toUppercase().equals(name of list of sets(i)) {
             return true;
          }
