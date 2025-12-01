@@ -116,7 +116,9 @@ public class EditSetPanel extends JPanel {
      
      ////////////////////////////////////////////// BODY //////////////////////////////////////////////
      
-     // to do lol
+     // create a panel to hold the rows
+     JPanel bodyPanel = new JPanel();
+     bodyPanel.setLayout(new BoxLayout.
      
      ////////////////////////////////////////////// COMPILE //////////////////////////////////////////////
      
@@ -188,6 +190,8 @@ public class EditSetPanel extends JPanel {
       }
    }
    
+   
+   // this is for testing, to remove
    public static void main(String[] args) {
       JFrame testFrame = new JFrame("BrainBlast - testing debug");
       EditSetPanel esp = new EditSetPanel("Names to Remember");
