@@ -1,3 +1,4 @@
+import javax.swing.*;
 import java.io.*;
 import java.util.*;
 
@@ -59,36 +60,35 @@ public class FindSet extends JFrame {
          //call match on searchedName
      }
    public boolean match (String searchedName) {
-      //check against existing list of set names (in folder) 
-      
-      
+       //check against existing list of set names (in folder)
+
+
        // String directoryPath = "path/to/your/folder"; // Replace with our actual folder path
        // File folder = new File(directoryPath);
 
        // if (folder.exists() && folder.isDirectory()) {
-           // File[] files = folder.listFiles();
+       // File[] files = folder.listFiles();
        // }
        // Scanner sc = new Scanner(new File("______")); //gp through file of file names
-      //while (sc.hasNext()) {
-       
-      
-      
+       //while (sc.hasNext()) {
+
+
       for (int i = 0; i < existingSets.size(); i++) {
          if (searchedName.toUppercase().equals(name of list of sets(i)) {
-            return true; 
+            return true;
          }
       }
    }
-   
+
 // OR
 
 
 //find it on the page (all existing sets pop up)
-   //click on a set (each is a button)
-      //when clicked, link to gregory's edit set page  and
-      //open to see options of what you can do with the set (can edit, quiz, review)
-         //each is a button which then leads to a new panel 
- 
+       //click on a set (each is a button)
+       //when clicked, link to gregory's edit set page  and
+       //open to see options of what you can do with the set (can edit, quiz, review)
+       //each is a button which then leads to a new panel
+
 
 
 
