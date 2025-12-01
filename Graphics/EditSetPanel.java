@@ -118,7 +118,9 @@ public class EditSetPanel extends JPanel {
      
      // create a panel to hold the rows
      JPanel bodyPanel = new JPanel();
-     bodyPanel.setLayout(new BoxLayout.
+     bodyPanel.setLayout(new BoxLayout(bodyPanel, BoxLayout.Y_AXIS));
+     
+     
      
      ////////////////////////////////////////////// COMPILE //////////////////////////////////////////////
      
