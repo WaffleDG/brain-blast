@@ -74,7 +74,7 @@ public class MainFrame extends JFrame {
     *    FindPanel - "catalog"
     */
    public static void switchScreen(String target) {
-      System.out.println("message recieved hello??? " + target);
+      System.out.println("recieved: " + target);
       if (target.equals("edit")) {
          mainPanel.add(new EditSetPanel(), "edit");
       }
@@ -84,9 +84,10 @@ public class MainFrame extends JFrame {
    
    /** 
     * the loadEditSet method creates a new EditSetPanel with the "edit" target and sets it 
-    * to the visible screen.
+    * to the visible screen. This overrides what was previously held.
     */
    public static void loadEditSet(String setName) {
+      System.out.println("recieved: load " + setName);
       mainPanel.add(new EditSetPanel(setName), "edit");
       
       cl.show(mainPanel, "edit");
