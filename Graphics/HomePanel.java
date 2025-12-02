@@ -5,6 +5,8 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.imageio.ImageIO;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -15,8 +17,8 @@ import java.io.IOException;
 
 /**
  * Defines the Home panel for Brain Blast! This will feature buttons to allow the user to change frames to the
- * "Set creation" screen and the "see other created sets" screen. This is an implementation of a JPanel.
- * It will be loaded in the JFrame that defines the window.
+ * "Set creation" screen and the "see other created sets" screen. This is an instance of a JPanel.
+ * It will be loaded in the JFrame that defines the window. It implements ActionListener for button support.
  *
  * <p>
  * Authors: Gregory Cohen and Riya Jonnala.
@@ -30,7 +32,7 @@ import java.io.IOException;
  * @version    1.0
  * @see        JPanel
  */
-public class HomePanel extends JPanel {
+public class HomePanel extends JPanel implements ActionListener {
    /** variable to save the background image for this panel. */
    private static BufferedImage backgroundImage;
    /** variable for the logo image */
@@ -61,6 +63,7 @@ public class HomePanel extends JPanel {
       createSet.setPreferredSize(new Dimension(200, 50));
       createSet.setMaximumSize(createSet.getPreferredSize());
       createSet.setAlignmentX(Component.CENTER_ALIGNMENT);
+      createSet.setActionCommand("edit");
       this.add(createSet);
       
       // adding some space between buttons
@@ -71,8 +74,12 @@ public class HomePanel extends JPanel {
       viewSets.setPreferredSize(new Dimension(200, 50));
       viewSets.setMaximumSize(createSet.getPreferredSize());
       viewSets.setAlignmentX(Component.CENTER_ALIGNMENT);
+      viewSets.setActionCommand("catalog");
       this.add(viewSets);
       
+      // adding action listeners for the buttons
+      createSet.addActionListener(this); // so this class will listen
+      viewSets.addActionListener(this);
       
       // add more vertical glue to center
       this.add(Box.createVerticalGlue());
@@ -109,6 +116,18 @@ public class HomePanel extends JPanel {
          // do not load program w/o assets
          System.exit(0);
       }
+   }
+   
+   /** 
+    * Override for the actionPerformed method which listens for the messages that are sent by the buttons 
+    */
+   @Override
+   public void actionPerformed(ActionEvent e) {
+      // normally, other buttons which have nothing to do with activation,
+      // but since there are none, just pass it on to the MainFrame class to do it.
+      System.out.println("hello: " + e.getActionCommand());
+      
+      MainFrame.switchScreen(e.getActionCommand());
    }
    
    /** 

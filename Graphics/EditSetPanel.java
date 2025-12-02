@@ -12,21 +12,25 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.imageio.ImageIO;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.PrintStream;
 import java.io.IOException;
 
 
-import javax.swing.JFrame;
+import javax.swing.JFrame; // testing - to remove
 
 /**
  * Screen for creating or editing new sets for Brain Blast! This will provide the user the ability to create a new set, entering as many keyword-definition pairs as they want!
- * K-D pairs will not be stored in a map; and instead will be stored in two lists for their ability to be shuffled. Again, this is an implementation of a JPanel.
- * Sets will be saved with each flashcard on  key <tab> definition
+ * K-D pairs will not be stored in a map; and instead will be stored in two lists for their ability to be shuffled. Again, this is an instance of a JPanel. It implements
+ * ActionListener to support button use.
+ * Sets will be saved with each flashcard by  key <tab> definition
  * 
  * <p>
  * Authors: Gregory Cohen and Riya Jonnala.
@@ -133,65 +137,103 @@ public class EditSetPanel extends JPanel {
       
       // label the panels
       JLabel keyLabel = new JLabel("KEY");
+      keyLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
       JLabel defLabel = new JLabel("DEFINITION");
+      defLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
       
       keyPanel.add(keyLabel);
       defPanel.add(defLabel);
      
       // for each key-value pair (standard for to allow for indexing through both arrayLists),
       for (int i = 0; i < keysList.size(); i++) {
-         // create new JTextAreas for the key and value
-         JTextArea keyArea = new JTextArea(15, 20);
-         keyArea.setMaximumSize(keyArea.getPreferredSize());
-         keyArea.setLineWrap(true);
-         keyArea.setText(keysList.get(i));
-         
-         JTextArea defArea = new JTextArea(15, 20);
-         defArea.setMaximumSize(defArea.getPreferredSize());
-         defArea.setLineWrap(true);
-         defArea.setText(definitionsList.get(i));
-         
-         // because JTextAreas do not allow scrolling by default, we have to manually override it. Yay.
-         JScrollPane keySP = new JScrollPane(keyArea);
-         JScrollPane defSP = new JScrollPane(defArea);
-         
-         // padding
-         keyPanel.add(Box.createVerticalStrut(5));
-         defPanel.add(Box.createVerticalStrut(5));
-         
-         // add each scroll pane to their respective panels.
-         keyPanel.add(keySP);
-         defPanel.add(defSP);
-         
-         // padding
-         keyPanel.add(Box.createVerticalStrut(5));
-         defPanel.add(Box.createVerticalStrut(5));
-         
-         // line separator
-         keyPanel.add(new JSeparator(SwingConstants.HORIZONTAL));
-         defPanel.add(new JSeparator(SwingConstants.HORIZONTAL));
+         addPair(keysList.get(i), definitionsList.get(i), keyPanel, defPanel);
+        
       }
      
       // compile bodyPanel
-      bodyPanel.add(Box.createHorizontalStrut(5));
+      bodyPanel.add(Box.createHorizontalGlue());
       bodyPanel.add(keyPanel);
+      bodyPanel.add(Box.createHorizontalGlue());
       bodyPanel.add(new JSeparator(SwingConstants.VERTICAL));
+      bodyPanel.add(Box.createHorizontalGlue());
       bodyPanel.add(defPanel);
-      bodyPanel.add(Box.createHorizontalStrut(5));
+      bodyPanel.add(Box.createHorizontalGlue());
       
       // create a scrollpane for body panel
       JScrollPane bodyScroll = new JScrollPane(bodyPanel);
       bodyScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
       
+      ////////////////////////////////////////////// FOOTER //////////////////////////////////////////////
+      
+      JPanel footer = new JPanel();
+      footer.setLayout(new BoxLayout(footer, BoxLayout.X_AXIS));
+      
+      // create a button to add another
+      JButton addButton = new JButton("Add Another");
+      
+      footer.add(addButton);
+      
       ////////////////////////////////////////////// COMPILE //////////////////////////////////////////////
+      
       this.add(Box.createVerticalStrut(5));
       this.add(header);
       this.add(Box.createVerticalStrut(5));
-      this.add(new JSeparator(SwingConstants.HORIZONTAL));
+
       this.add(bodyScroll);
       
+      this.add(Box.createVerticalStrut(5));
+      this.add(footer);
+      this.add(Box.createVerticalStrut(5));
+
      
       this.setVisible(true);
+   }
+   
+   /**
+    * This method adds new text areas to the key and definition, and should be triggered solely by the
+    * constructor and the add another button action.
+    * 
+    * It takes the necessary panels as parameters.
+    */
+   private static void addPair(String key, String definition, JPanel keyPanel, JPanel defPanel) {
+      // line separator
+      keyPanel.add(new JSeparator(SwingConstants.HORIZONTAL));
+      defPanel.add(new JSeparator(SwingConstants.HORIZONTAL));
+      
+      // create new JTextAreas for the key and value
+      JTextArea keyArea = new JTextArea(10, 20);
+      keyArea.setMaximumSize(keyArea.getPreferredSize());
+      keyArea.setLineWrap(true);
+      keyArea.setWrapStyleWord(true);
+      keyArea.setText(key);
+      
+      JTextArea defArea = new JTextArea(10, 20);
+      defArea.setMaximumSize(defArea.getPreferredSize());
+      defArea.setLineWrap(true);
+      defArea.setWrapStyleWord(true);
+      defArea.setText(definition);
+      
+      // because JTextAreas do not allow scrolling by default, we have to manually override it. Yay.
+      JScrollPane keySP = new JScrollPane(keyArea);
+      JScrollPane defSP = new JScrollPane(defArea);
+      
+      // padding
+      keyPanel.add(Box.createVerticalStrut(5));
+      defPanel.add(Box.createVerticalStrut(5));
+      
+      // add each scroll pane to their respective panels.
+      keyPanel.add(keySP);
+      defPanel.add(defSP);
+      
+      // padding
+      keyPanel.add(Box.createVerticalStrut(5));
+      defPanel.add(Box.createVerticalStrut(5));
+      
+      // revalidate/repaint the panels.
+      keyPanel.revalidate();
+      defPanel.revalidate();
+      keyPanel.repaint();
+      defPanel.repaint();
    }
   
    /**
@@ -213,7 +255,7 @@ public class EditSetPanel extends JPanel {
          newFile = new File(dir + fileName + counter + ".txt");
       }
       
-      return (fileName + counter + ".txt");
+      return (fileName + counter);
    }
   
    /**
@@ -230,8 +272,13 @@ public class EditSetPanel extends JPanel {
       // create the actual file if not created already
       try {
          if (setFile.createNewFile()) { // this will only return true if the file is created.
-            // return; nothing else to load
-            return;  
+            // add a standard "key" "def" to the lists.
+            keysList.add("Key");
+            definitionsList.add("Definition");
+            
+            // save to file
+            PrintStream pr = new PrintStream(filePath);
+            pr.println("Key\tDefinition");
          }
          else { // if the file already exists we have to read it
             // create a new scanner to read file
