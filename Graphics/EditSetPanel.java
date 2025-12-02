@@ -54,7 +54,8 @@ public class EditSetPanel extends JPanel implements ActionListener {
    /** Private variable for each of the keys of the set */
    private ArrayList<JTextArea> keysList;
    
-   /** Private varuable to keep track of the */
+   /** Private variable to keep track of the rename text field*/
+   private JTextField renameFileBox;
    
    /** Private variable to keep track of the initial keys */
    private ArrayList<String> initKeys;
