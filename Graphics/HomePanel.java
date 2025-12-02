@@ -125,7 +125,7 @@ public class HomePanel extends JPanel implements ActionListener {
    public void actionPerformed(ActionEvent e) {
       // normally, other buttons which have nothing to do with activation,
       // but since there are none, just pass it on to the MainFrame class to do it.
-      System.out.println("hello: " + e.getActionCommand());
+      System.out.println("sent: " + e.getActionCommand());
       
       MainFrame.switchScreen(e.getActionCommand());
    }

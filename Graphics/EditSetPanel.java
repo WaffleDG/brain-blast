@@ -44,7 +44,7 @@ import javax.swing.JFrame; // testing - to remove
  * @version    1.0
  * @see        JPanel
  */
-public class EditSetPanel extends JPanel {
+public class EditSetPanel extends JPanel implements ActionListener {
    /** Private variable to keep track of the file */
    private File setFile;
    
@@ -52,6 +52,11 @@ public class EditSetPanel extends JPanel {
    private ArrayList<String> definitionsList; 
    /** Private variable for each of the keys of the set */
    private ArrayList<String> keysList;
+   
+   /** Private variable for the keyPanel */
+   private JPanel keyPanel;
+   /** Private variable for the defPanel */
+   private JPanel defPanel;
    
    /** Private static final variable for the directory */
    private static final String dir = "../Sets/";
@@ -64,6 +69,7 @@ public class EditSetPanel extends JPanel {
       this(newUnnamedFileName());
    }
    
+
 
    /**
     * Constructor which takes a file name, reads the file or creates one if not already existing, loads the set and the graphics from that.
@@ -130,9 +136,9 @@ public class EditSetPanel extends JPanel {
       bodyPanel.setLayout(new BoxLayout(bodyPanel, BoxLayout.X_AXIS));
       
       // create panels for the keys and for the definitions
-      JPanel keyPanel = new JPanel();
+      keyPanel = new JPanel();
       keyPanel.setLayout(new BoxLayout(keyPanel, BoxLayout.Y_AXIS));
-      JPanel defPanel = new JPanel();
+      defPanel = new JPanel();
       defPanel.setLayout(new BoxLayout(defPanel, BoxLayout.Y_AXIS));
       
       // label the panels
@@ -146,7 +152,7 @@ public class EditSetPanel extends JPanel {
      
       // for each key-value pair (standard for to allow for indexing through both arrayLists),
       for (int i = 0; i < keysList.size(); i++) {
-         addPair(keysList.get(i), definitionsList.get(i), keyPanel, defPanel);
+         addPair(keysList.get(i), definitionsList.get(i));
         
       }
      
@@ -170,6 +176,8 @@ public class EditSetPanel extends JPanel {
       
       // create a button to add another
       JButton addButton = new JButton("Add Another");
+      addButton.setActionCommand("add");
+      addButton.addActionListener(this);
       
       footer.add(addButton);
       
@@ -189,13 +197,13 @@ public class EditSetPanel extends JPanel {
       this.setVisible(true);
    }
    
+   
+   
    /**
     * This method adds new text areas to the key and definition, and should be triggered solely by the
     * constructor and the add another button action.
-    * 
-    * It takes the necessary panels as parameters.
     */
-   private static void addPair(String key, String definition, JPanel keyPanel, JPanel defPanel) {
+   private void addPair(String key, String definition) {
       // line separator
       keyPanel.add(new JSeparator(SwingConstants.HORIZONTAL));
       defPanel.add(new JSeparator(SwingConstants.HORIZONTAL));
@@ -217,6 +225,9 @@ public class EditSetPanel extends JPanel {
       JScrollPane keySP = new JScrollPane(keyArea);
       JScrollPane defSP = new JScrollPane(defArea);
       
+      keySP.setMaximumSize(keySP.getPreferredSize());
+      defSP.setMaximumSize(defSP.getPreferredSize());
+      
       // padding
       keyPanel.add(Box.createVerticalStrut(5));
       defPanel.add(Box.createVerticalStrut(5));
@@ -235,6 +246,8 @@ public class EditSetPanel extends JPanel {
       keyPanel.repaint();
       defPanel.repaint();
    }
+  
+  
   
    /**
     * newUnnamedFileName finds the next unique file name with the start "Unnamed Set " as a txt.
@@ -257,6 +270,8 @@ public class EditSetPanel extends JPanel {
       
       return (fileName + counter);
    }
+  
+  
   
    /**
     * loadFile takes a filePath and creates or gets the corresponding file.
@@ -302,6 +317,26 @@ public class EditSetPanel extends JPanel {
          System.exit(0);
       }
    }
+   
+   
+   
+   /** Override for actionPerformed */
+   @Override
+   public void actionPerformed(ActionEvent e) {
+      String message = e.getActionCommand();
+      
+      if (message.equals("add")) {
+         this.addPair("Key", "Definition");
+      }
+      else if (message.equals("save")) {
+         // TO DO: Make a save method!
+      }
+      else if (message.equals("close")) {
+         // TO DO: make panel to do are you sure?
+         MainFrame.switchScreen("home");
+      }
+   }
+   
    
    
    // this is for testing, to remove
