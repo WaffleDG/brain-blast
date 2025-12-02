@@ -50,10 +50,16 @@ public class EditSetPanel extends JPanel implements ActionListener {
    private File setFile;
    
    /** Private variable for each of the definitions of the set */
-   private ArrayList<String> definitionsList; 
+   private ArrayList<JTextArea> definitionsList; 
    /** Private variable for each of the keys of the set */
-   private ArrayList<String> keysList;
+   private ArrayList<JTextArea> keysList;
    
+   /** Private varuable to keep track of the */
+   
+   /** Private variable to keep track of the initial keys */
+   private ArrayList<String> initKeys;
+   /** Private variable to keep track of the initial defs */
+   private ArrayList<String> initDefs;
    /** Private variable for the keyPanel */
    private JPanel keyPanel;
    /** Private variable for the defPanel */
@@ -109,7 +115,7 @@ public class EditSetPanel extends JPanel implements ActionListener {
       JButton saveButton = new JButton("save"); // TO DO: make an icon **************************************************
      
       // creating the text field
-      JTextField renameFileBox = new JTextField(20);
+      renameFileBox = new JTextField(20);
       renameFileBox.setMaximumSize(renameFileBox.getPreferredSize()); // setting the max size to the preferred
       renameFileBox.setText(fileName);
      
@@ -161,8 +167,8 @@ public class EditSetPanel extends JPanel implements ActionListener {
       defPanel.add(Box.createVerticalGlue());      
       
       // for each key-value pair (standard for to allow for indexing through both arrayLists),
-      for (int i = 0; i < keysList.size(); i++) {
-         addPair(keysList.get(i), definitionsList.get(i));
+      for (int i = 0; i < initKeys.size(); i++) {
+         addPair(initKeys.get(i), initDefs.get(i));
         
       }      
       
@@ -240,6 +246,10 @@ public class EditSetPanel extends JPanel implements ActionListener {
       defArea.setWrapStyleWord(true);
       defArea.setText(definition);
       
+      // add these areas to the lists
+      keysList.add(keyArea);
+      definitionsList.add(defArea);
+      
       // because JTextAreas do not allow scrolling by default, we have to manually override it. Yay.
       JScrollPane keySP = new JScrollPane(keyArea);
       JScrollPane defSP = new JScrollPane(defArea);
@@ -267,9 +277,13 @@ public class EditSetPanel extends JPanel implements ActionListener {
       keyPanel.repaint();
       defPanel.repaint();
    }
-  
-  
-  
+   
+   
+   /**
+    * saveToFile does just that! Save to file. It will handle renaming, 
+    */
+   
+   
    /**
     * newUnnamedFileName finds the next unique file name with the start "Unnamed Set " as a txt.
     */
@@ -302,15 +316,15 @@ public class EditSetPanel extends JPanel implements ActionListener {
       setFile = new File(filePath);
       
       // create the ArrayList objects
-      keysList = new ArrayList<String>();
-      definitionsList = new ArrayList<String>();
+      initKeys = new ArrayList<String>();
+      initDefs = new ArrayList<String>();
       
       // create the actual file if not created already
       try {
          if (setFile.createNewFile()) { // this will only return true if the file is created.
             // add a standard "key" "def" to the lists.
-            keysList.add("Key");
-            definitionsList.add("Definition");
+            initKeys.add("Key");
+            initDefs.add("Definition");
             
             // save to file
             PrintStream pr = new PrintStream(filePath);
@@ -326,8 +340,8 @@ public class EditSetPanel extends JPanel implements ActionListener {
                String[] parts = fileReader.nextLine().split("\\t");
                
                // the first object will be the key, and the second object will be the definition.
-               keysList.add(parts[0]);
-               definitionsList.add(parts[1]);
+               initKeys.add(parts[0]);
+               initDefs.add(parts[1]);
             }
          }
       }
