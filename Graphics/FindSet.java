@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.*;
 import java.util.*;
+import java.awt.FlowLayout;
 
 
 /**
@@ -28,11 +29,15 @@ public class FindSet extends JFrame {
         setTitle("Find Set Page");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800, 600);
-        setLocationRelativeTo(null); //where should the location be??
+        setLocationRelativeTo(null); //centers the frame on the screen
 
         // Create JPanel
         JPanel panelOfSets = new JPanel();
-        panelOfSets.setLayout(new GridLayout(100, 5)); // Example: a panel with many rows
+        //look into FlowLayout - below isn't needed if using FlowLayout
+        //panelOfSets.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));
+
+
+        panelOfSets.setLayout(new GridLayout(100, 5)); // a 5 x 100 panel
         for (int i = 0; i < 100; i++) { //need to make sure that the buttons only come up based on how many sets exist
             panelOfSets.add(new JButton("Button " + (i + 1)));
         }
@@ -79,10 +84,20 @@ public class FindSet extends JFrame {
     // OR
 
 //search by name
-   
-   
+
+    //not needed if using FlowLayout
+    //counts number of sets based on number of saved names in the list of set names
+    public int numberOfSets (/* pass in list of set names  */) {
+        Scanner sc = new Scanner( /* file that holds the set names */ );
+        int numSets = 0;
+        while (sc.hasNext()) {
+            String name = sc.next();
+            numSets++;
+        }
+        return numSets;
+    }
    //scanner input to take name of the set (needs to be exact in terms of spacing, caps doesn't matter)
-      public void getASearchedName () {
+   public void getASearchedName () {
          Scanner console = new Scanner(System.in);
          System.out.print("Which set are you looking for?");
          String searchedName = console.nextLine();
