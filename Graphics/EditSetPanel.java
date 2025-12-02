@@ -12,6 +12,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.imageio.ImageIO;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.Component;
@@ -141,6 +142,10 @@ public class EditSetPanel extends JPanel implements ActionListener {
       defPanel = new JPanel();
       defPanel.setLayout(new BoxLayout(defPanel, BoxLayout.Y_AXIS));
       
+      // padding
+      keyPanel.add(Box.createVerticalStrut(5));
+      defPanel.add(Box.createVerticalStrut(5));
+      
       // label the panels
       JLabel keyLabel = new JLabel("KEY");
       keyLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -149,21 +154,27 @@ public class EditSetPanel extends JPanel implements ActionListener {
       
       keyPanel.add(keyLabel);
       defPanel.add(defLabel);
-     
+      
+      // ADDING A BOTTOM GLUE! This glue will stay at the bottom using the position function
+      // of the add method. add(element, position); where position is the .getComponent - 1
+      keyPanel.add(Box.createVerticalGlue());
+      defPanel.add(Box.createVerticalGlue());      
+      
       // for each key-value pair (standard for to allow for indexing through both arrayLists),
       for (int i = 0; i < keysList.size(); i++) {
          addPair(keysList.get(i), definitionsList.get(i));
         
-      }
-     
+      }      
+      
       // compile bodyPanel
       bodyPanel.add(Box.createHorizontalGlue());
       bodyPanel.add(keyPanel);
       bodyPanel.add(Box.createHorizontalGlue());
       bodyPanel.add(new JSeparator(SwingConstants.VERTICAL));
-      bodyPanel.add(Box.createHorizontalGlue());
+      //bodyPanel.add(Box.createHorizontalGlue());
       bodyPanel.add(defPanel);
       bodyPanel.add(Box.createHorizontalGlue());
+      
       
       // create a scrollpane for body panel
       JScrollPane bodyScroll = new JScrollPane(bodyPanel);
@@ -202,10 +213,19 @@ public class EditSetPanel extends JPanel implements ActionListener {
     * This method adds new text areas to the key and definition, and should be triggered solely by the
     * constructor and the add another button action.
     */
-   private void addPair(String key, String definition) {
+   private void addPair(String key, String definition) {   
+      // get the position so i don't have to use the same code many times
+      int position = keyPanel.getComponentCount() - 1;
+      
+      // padding
+      keyPanel.add(Box.createVerticalStrut(5), position);
+      defPanel.add(Box.createVerticalStrut(5), position);
+      position++;
+   
       // line separator
-      keyPanel.add(new JSeparator(SwingConstants.HORIZONTAL));
-      defPanel.add(new JSeparator(SwingConstants.HORIZONTAL));
+      keyPanel.add(new JSeparator(SwingConstants.HORIZONTAL), position);
+      defPanel.add(new JSeparator(SwingConstants.HORIZONTAL), position);
+      position++; // keep track
       
       // create new JTextAreas for the key and value
       JTextArea keyArea = new JTextArea(10, 20);
@@ -228,16 +248,18 @@ public class EditSetPanel extends JPanel implements ActionListener {
       defSP.setMaximumSize(defSP.getPreferredSize());
       
       // padding
-      keyPanel.add(Box.createVerticalStrut(5));
-      defPanel.add(Box.createVerticalStrut(5));
+      keyPanel.add(Box.createVerticalStrut(5), position);
+      defPanel.add(Box.createVerticalStrut(5), position);
+      position++;
       
       // add each scroll pane to their respective panels.
-      keyPanel.add(keySP);
-      defPanel.add(defSP);
+      keyPanel.add(keySP, position);
+      defPanel.add(defSP, position);
+      position++;
       
       // padding
-      keyPanel.add(Box.createVerticalStrut(5));
-      defPanel.add(Box.createVerticalStrut(5));
+      keyPanel.add(Box.createVerticalStrut(5), position);
+      defPanel.add(Box.createVerticalStrut(5), position);
       
       // revalidate/repaint the panels.
       keyPanel.revalidate();
