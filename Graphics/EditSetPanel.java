@@ -192,7 +192,6 @@ public class EditSetPanel extends JPanel implements ActionListener {
       this.add(Box.createVerticalStrut(5));
       this.add(footer);
       this.add(Box.createVerticalStrut(5));
-
      
       this.setVisible(true);
    }
