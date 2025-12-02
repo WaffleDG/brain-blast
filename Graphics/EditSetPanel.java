@@ -171,7 +171,7 @@ public class EditSetPanel extends JPanel implements ActionListener {
       bodyPanel.add(keyPanel);
       bodyPanel.add(Box.createHorizontalGlue());
       bodyPanel.add(new JSeparator(SwingConstants.VERTICAL));
-      //bodyPanel.add(Box.createHorizontalGlue());
+      bodyPanel.add(Box.createHorizontalGlue());
       bodyPanel.add(defPanel);
       bodyPanel.add(Box.createHorizontalGlue());
       
