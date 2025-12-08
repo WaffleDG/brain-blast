@@ -31,35 +31,39 @@ public class FindSet extends JFrame {
         setSize(800, 600);
         setLocationRelativeTo(null); //centers the frame on the screen
 
-        // Create JPanel
+        // Create JPanel (should there be a JFrame with panelOfSets added to it?
         JPanel panelOfSets = new JPanel();
-        //look into FlowLayout - below isn't needed if using FlowLayout
-        //panelOfSets.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        //adds items till they overflow, goes to next row
+        panelOfSets.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 10));
 
-
+        /* not used since FlowLayout is used
         panelOfSets.setLayout(new GridLayout(100, 5)); // a 5 x 100 panel
         for (int i = 0; i < 100; i++) { //need to make sure that the buttons only come up based on how many sets exist
             panelOfSets.add(new JButton("Button " + (i + 1)));
         }
+        */
+        //need this to populate as many buttons as existing sets
+        //make this into an addButton method
+        //call addButton for the number of existing sets
+
 
         // Creates a JScrollPane by passing in the JPanel as the view
         JScrollPane scrollPane = new JScrollPane(panelOfSets);
 
         // Customize scroll bar policies (defaults are AS_NEEDED)
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS); //can always scroll up and down
-        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED); //if needed, scroll right and left
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER); //no way to scroll horizontally
+        //since the FlowLayout means we shouldn't need to scroll horizontally
 
         // Adds the JScrollPane to your frame
         add(scrollPane, BorderLayout.CENTER);
-
         setVisible(true);
     }
-
 
 /*               find set
                search by name
      ________________________________
-     | ____ ____ ____ ____ ____  || | //has all existing sets in it, can scroll to click one (5 in a row, 100 in a column)
+     | ____ ____ ____ ____ ____  || | //has all existing sets in it, can scroll to click one
      | |__| |__| |__| |__| |___| || |
      | ____ ____ ____ ____ ____  || |
      | |__| |__| |__| |__| |__|  || |
@@ -122,6 +126,12 @@ public class FindSet extends JFrame {
             return true;
          }
       }
+
    }
+   //adds a button to the FlowLayout (one button needed per set
+   public void addButton (String setName) {
+       JButton button1 = new JButton("Button 1");
+       panelOfSets.add(button1); //need to be able to addButton to panelOfSets
+    }
 
 }
