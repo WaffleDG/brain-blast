@@ -294,18 +294,33 @@ public class EditSetPanel extends JPanel implements ActionListener {
     * saveFile does just that! Save to file. It will handle renaming and writing to file.
     */
    public void saveFile() {
+      // sanitize the renameFileTextBox
+      String renameFileText = renameFileBox.getText();
+      
+      // i'm just going to make it alphanumeric because that seems good
+      for (int i = renameFileText.length() - 1; i >= 0 ; i--) {
+         char thisChar = renameFileText.charAt(i);
+         
+         // if it's not alphanumeric,
+         if (!Character.isLetterOrDigit(thisChar) && thisChar != ' ') {
+            renameFileText = renameFileText.substring(0, i) + renameFileText.substring(i + 1); // remove it
+         }
+      }
+   
       // rename file (if applicable): get the file that corresponds to the text saved in the renameFileBox
-      File renamedFile = new File(dir + renameFileBox.getText());
+      File renamedFile = new File(dir + renameFileText + ".txt");
+      
+      System.out.println(renamedFile.getName() + ", " + setFile.getName());
+      System.out.println(!renamedFile.getName().equals(setFile.getName()) && renamedFile.exists());
       
       // if the file has been renamed (names !=), and already exists,
-      if (!renamedFile.getName().equals(setFile.getName()) && renamedFile.exists()) {
+      if (!(renamedFile.getName().equals(setFile.getName())) && renamedFile.exists()) {
          // we need to find the file that doesn't.
          // luckily, I made a method for that!
-         renamedFile = new File(dir + newUnexistingFileName(renameFileBox.getText()));
+         renamedFile = new File(dir + newUnexistingFileName(renameFileBox.getText()) + ".txt");
       }
       
-      System.out.println(renameFileBox.getText());
-      setFile.renameTo(renamedFile); // bang
+      setFile.renameTo(renamedFile); // overriding what is already saved, in case of deletions.
    
       // Create a new printStream to write to the file starting at the beginning and 
       // overwriting the text already there.
@@ -315,12 +330,16 @@ public class EditSetPanel extends JPanel implements ActionListener {
          
          // for each key-def text area pair
          for (int i = 0; i < keysList.size(); i++) {
+            // get sanitized input
             // get the key as a string WITHOUT TABS
             String key = keysList.get(i).getText().replace("\t", " ");
             // get the definition as a string w/o \t
             String def = definitionsList.get(i).getText().replace("\t", " ");
             
-            System.out.println(key + "\t" + def);
+            // if there is nothing in the key or definition, we don't have to track it.
+            if (key.length() == 0 && def.length() == 0) {
+               continue;
+            }
             
             // and print it!
             pr.println(key + "\t" + def);
@@ -342,7 +361,7 @@ public class EditSetPanel extends JPanel implements ActionListener {
    }
    
    /**
-    * newUnexistingFileName finds the next unique file name with the start "Unnamed Set " as a txt.
+    * newUnexistingFileName finds the next unique file name with the start "baseFileName" as a txt.
     */
    public static String newUnexistingFileName(String baseFileName) {
       // finding a fileName that will work -- checks if 1 exists, if not, checks if 2 exists, and so on
@@ -393,8 +412,15 @@ public class EditSetPanel extends JPanel implements ActionListener {
             
             // while there is another line to read
             while (fileReader.hasNextLine()) {
+               String thisLine = fileReader.nextLine();
+               
+               // if there is nothing in the line, continue.
+               if (thisLine.length() == 0) {
+                  continue;
+               }
+               
                // get the next line and split it into parts separated by a tab "\t": inputted as "\\t" so .split can read it
-               String[] parts = fileReader.nextLine().split("\\t");
+               String[] parts = thisLine.split("\\t");
                
                // the first object will be the key, and the second object will be the definition.
                initKeys.add(parts[0]);
