@@ -49,9 +49,9 @@ public class EditSetPanel extends JPanel implements ActionListener {
    /** Private variable to keep track of the file */
    private File setFile;
    
-   /** Private variable for each of the definitions of the set */
+   /** Private variable for each of the definitions text areas of the set */
    private ArrayList<JTextArea> definitionsList; 
-   /** Private variable for each of the keys of the set */
+   /** Private variable for each of the key text areas of the set */
    private ArrayList<JTextArea> keysList;
    
    /** Private variable to keep track of the rename text field*/
@@ -74,7 +74,7 @@ public class EditSetPanel extends JPanel implements ActionListener {
     */
    public EditSetPanel() {
       // call the other constructor with this file.
-      this(newUnnamedFileName());
+      this(newUnexistingFileName());
    }
    
 
@@ -85,6 +85,9 @@ public class EditSetPanel extends JPanel implements ActionListener {
    public EditSetPanel(String fileName) {
       String filePath = dir + fileName + ".txt";
       loadFile(filePath);
+      
+      keysList = new ArrayList<JTextArea>();
+      definitionsList = new ArrayList<JTextArea>();
       
       /*
                Edit Set '<>'
@@ -101,6 +104,7 @@ public class EditSetPanel extends JPanel implements ActionListener {
       
       // set the layout to be a vertical layout
       this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+      this.setMaximumSize(new Dimension(MainFrame.HEIGHT, MainFrame.WIDTH));
      
       // padding
       this.add(Box.createVerticalStrut(5));
@@ -114,7 +118,13 @@ public class EditSetPanel extends JPanel implements ActionListener {
       // creating two JButtons: one to close and one to save
       JButton closeButton = new JButton("close"); // TO DO: make an icon ************************************************
       JButton saveButton = new JButton("save"); // TO DO: make an icon **************************************************
-     
+      
+      // link them to the action listener
+      closeButton.setActionCommand("close");
+      closeButton.addActionListener(this);
+      saveButton.setActionCommand("save");
+      saveButton.addActionListener(this);
+      
       // creating the text field
       renameFileBox = new JTextField(20);
       renameFileBox.setMaximumSize(renameFileBox.getPreferredSize()); // setting the max size to the preferred
@@ -281,18 +291,64 @@ public class EditSetPanel extends JPanel implements ActionListener {
    
    
    /**
-    * saveToFile does just that! Save to file. It will handle renaming, 
+    * saveFile does just that! Save to file. It will handle renaming and writing to file.
     */
+   public void saveFile() {
+      // rename file (if applicable): get the file that corresponds to the text saved in the renameFileBox
+      File renamedFile = new File(dir + renameFileBox.getText());
+      
+      // if the file has been renamed (names !=), and already exists,
+      if (!renamedFile.getName().equals(setFile.getName()) && renamedFile.exists()) {
+         // we need to find the file that doesn't.
+         // luckily, I made a method for that!
+         renamedFile = new File(dir + newUnexistingFileName(renameFileBox.getText()));
+      }
+      
+      System.out.println(renameFileBox.getText());
+      setFile.renameTo(renamedFile); // bang
    
+      // Create a new printStream to write to the file starting at the beginning and 
+      // overwriting the text already there.
+      // as with all things with files, we must try-catch exceptions
+      try {
+         PrintStream pr = new PrintStream(setFile);
+         
+         // for each key-def text area pair
+         for (int i = 0; i < keysList.size(); i++) {
+            // get the key as a string WITHOUT TABS
+            String key = keysList.get(i).getText().replace("\t", " ");
+            // get the definition as a string w/o \t
+            String def = definitionsList.get(i).getText().replace("\t", " ");
+            
+            System.out.println(key + "\t" + def);
+            
+            // and print it!
+            pr.println(key + "\t" + def);
+         }
+      }
+      catch (IOException ioe) {
+         ioe.printStackTrace();
+      }
+      
+   }
+    
+   
+   
+   /** 
+    * this is an overload for the newUnexistingFileName which takes nothing. Default: Unnamed Set
+    */
+   public static String newUnexistingFileName() {
+      return newUnexistingFileName("Unnamed Set");
+   }
    
    /**
-    * newUnnamedFileName finds the next unique file name with the start "Unnamed Set " as a txt.
+    * newUnexistingFileName finds the next unique file name with the start "Unnamed Set " as a txt.
     */
-   public static String newUnnamedFileName() {
+   public static String newUnexistingFileName(String baseFileName) {
       // finding a fileName that will work -- checks if 1 exists, if not, checks if 2 exists, and so on
       // keeping track of counter and file name
       int counter = 1;
-      String fileName = "Unnamed Set "; // trailing space
+      String fileName = baseFileName + " "; // trailing space
       
       // setting first file name
       File newFile = new File(dir + fileName + counter + ".txt");
@@ -365,7 +421,7 @@ public class EditSetPanel extends JPanel implements ActionListener {
          this.addPair("Key", "Definition");
       }
       else if (message.equals("save")) {
-         // TO DO: Make a save method!
+         this.saveFile();
       }
       else if (message.equals("close")) {
          // TO DO: make panel to do are you sure?
@@ -380,10 +436,11 @@ public class EditSetPanel extends JPanel implements ActionListener {
       JFrame testFrame = new JFrame("BrainBlast - testing debug");
       EditSetPanel esp = new EditSetPanel("Names to Remember");
       
-      testFrame.setSize(800, 600);
       testFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
       testFrame.add(esp);
       
+      testFrame.pack();
+      testFrame.setSize(800, 600);
       testFrame.setVisible(true);
       
    }
