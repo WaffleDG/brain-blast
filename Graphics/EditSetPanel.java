@@ -23,6 +23,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.PrintStream;
 import java.io.IOException;
+import java.io.FileNotFoundException;
 
 
 import javax.swing.JFrame; // testing - to remove
@@ -310,22 +311,23 @@ public class EditSetPanel extends JPanel implements ActionListener {
       // rename file (if applicable): get the file that corresponds to the text saved in the renameFileBox
       File renamedFile = new File(dir + renameFileText + ".txt");
       
-      System.out.println(renamedFile.getName() + ", " + setFile.getName());
-      System.out.println(!renamedFile.getName().equals(setFile.getName()) && renamedFile.exists());
-      
       // if the file has been renamed (names !=), and already exists,
       if (!(renamedFile.getName().equals(setFile.getName())) && renamedFile.exists()) {
          // we need to find the file that doesn't.
          // luckily, I made a method for that!
-         renamedFile = new File(dir + newUnexistingFileName(renameFileBox.getText()) + ".txt");
+         renamedFile = new File(dir + newUnexistingFileName(renameFileText) + ".txt");
       }
-      
-      setFile.renameTo(renamedFile); // overriding what is already saved, in case of deletions.
    
       // Create a new printStream to write to the file starting at the beginning and 
       // overwriting the text already there.
       // as with all things with files, we must try-catch exceptions
       try {
+         // first, rename the file.
+         if (setFile.renameTo(renamedFile)) { 
+            // we'll make the set file = to the renamed one to ensure we are writing correctly.
+            setFile = renamedFile;
+         }
+         
          PrintStream pr = new PrintStream(setFile);
          
          // for each key-def text area pair
@@ -344,9 +346,11 @@ public class EditSetPanel extends JPanel implements ActionListener {
             // and print it!
             pr.println(key + "\t" + def);
          }
+         
+         pr.close();
       }
-      catch (IOException ioe) {
-         ioe.printStackTrace();
+      catch (FileNotFoundException fnfe) {
+         fnfe.printStackTrace();
       }
       
    }
@@ -426,6 +430,8 @@ public class EditSetPanel extends JPanel implements ActionListener {
                initKeys.add(parts[0]);
                initDefs.add(parts[1]);
             }
+            
+            fileReader.close(); // close the scanner
          }
       }
       catch (IOException ioe) {
@@ -460,12 +466,12 @@ public class EditSetPanel extends JPanel implements ActionListener {
    // this is for testing, to remove
    public static void main(String[] args) {
       JFrame testFrame = new JFrame("BrainBlast - testing debug");
-      EditSetPanel esp = new EditSetPanel("Names to Remember");
+      EditSetPanel esp = new EditSetPanel("Unnamed Set 1");
       
       testFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
       testFrame.add(esp);
       
-      testFrame.pack();
+      //testFrame.pack();
       testFrame.setSize(800, 600);
       testFrame.setVisible(true);
       
