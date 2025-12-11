@@ -31,12 +31,12 @@ public class FindSet extends JFrame {
         setSize(800, 600);
         setLocationRelativeTo(null); //centers the frame on the screen
 
-        // Create JPanel (should there be a JFrame with panelOfSets added to it?
+        // Create JPanel (should there be a JFrame with panelOfSets added to it?)
         JPanel panelOfSets = new JPanel();
         //adds items till they overflow, goes to next row
         panelOfSets.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 10));
 
-        /* not used since FlowLayout is used
+        /* unneeded since FlowLayout is used
         panelOfSets.setLayout(new GridLayout(100, 5)); // a 5 x 100 panel
         for (int i = 0; i < 100; i++) { //need to make sure that the buttons only come up based on how many sets exist
             panelOfSets.add(new JButton("Button " + (i + 1)));
@@ -45,6 +45,42 @@ public class FindSet extends JFrame {
         //need this to populate as many buttons as existing sets
         //make this into an addButton method
         //call addButton for the number of existing sets
+
+        // Populate buttons using a for loop
+
+        /*
+        for (int i = 0; i <  existingSets  .length; i++) { //this is
+            buttons[i] = new JButton(existingSets[i]); // Create a new button with a label
+            buttons[i].addActionListener(this); // Add an action listener to the button
+            add(buttons[i]); // Add the button to the frame (which uses FlowLayout)
+        }
+
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Close the application when the window is closed
+        pack(); // Resize the frame to fit all components
+        setVisible(true); // Make the frame visible
+        }
+
+
+        public void actionPerformed(ActionEvent e) {
+            // Handle button clicks
+            JButton source = (JButton) e.getSource();
+            JOptionPane.showMessageDialog(this, "You clicked: " + source.getText());
+        }
+
+        public static void main(String[] args) {
+            // Run the GUI creation on the Event Dispatch Thread (EDT)
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    new FlowLayoutDemo();
+                }
+            });
+        }
+    }
+
+
+
+
+
 
 
         // Creates a JScrollPane by passing in the JPanel as the view
@@ -81,7 +117,7 @@ public class FindSet extends JFrame {
 // (potential cover pic for each grid box later))
     //click on a set (each is a button)
     //open to see options of what you can do with the set (can edit, quiz (given key or given definition), review)
-    //each is a button which then leads to a new panel
+    //each is a button which then leads to a new panel or pop up window
 
 //button to click to access an existing set
 
@@ -117,7 +153,7 @@ public class FindSet extends JFrame {
        // if (folder.exists() && folder.isDirectory()) {
        // File[] files = folder.listFiles();
        // }
-       // Scanner sc = new Scanner(new File("______")); //gp through file of file names
+       // Scanner sc = new Scanner(new File("______")); //go through file of file names
        //while (sc.hasNext()) {
 
 
@@ -129,9 +165,11 @@ public class FindSet extends JFrame {
 
    }
    //adds a button to the FlowLayout (one button needed per set
-   public void addButton (String setName) {
-       JButton button1 = new JButton("Button 1");
-       panelOfSets.add(button1); //need to be able to addButton to panelOfSets
+   public void addButton (String setName, JPanel panelOfSets, int numSets) {
+        String name = "button" + numSets;
+       JButton button1 = new JButton("Button 1"); //how to get different names per button
+       panelOfSets.add(button1);
+
     }
 
 }
