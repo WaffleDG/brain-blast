@@ -7,7 +7,8 @@ import java.awt.FlowLayout;
 
 /**
  * This frame can be viewed in BrainBlast. This is a JPanel and is the screen which is going 
- * to be viewed. It has a private JPanel which can be accessed from the HomePanel and allows users to view existing saved flashcard sets. 
+ * to be viewed. It has a private JPanel which can be accessed from the HomePanel and allows users to
+ * view existing saved flashcard sets.
  * 
  *
  * <p>
@@ -48,7 +49,7 @@ public class FindSet extends JFrame {
 
         // Populate buttons using a for loop
 
-        /*
+        /* from google, i dont really get what this does
         for (int i = 0; i <  existingSets  .length; i++) { //this is
             buttons[i] = new JButton(existingSets[i]); // Create a new button with a label
             buttons[i].addActionListener(this); // Add an action listener to the button
@@ -76,10 +77,6 @@ public class FindSet extends JFrame {
             });
         }
     }
-
-
-
-
 
 
 
@@ -164,7 +161,7 @@ public class FindSet extends JFrame {
       }
 
    }
-   //adds a button to the FlowLayout (one button needed per set
+   //adds a button to the FlowLayout (one button needed per set)
    public void addButton (String setName, JPanel panelOfSets, int numSets) {
         String name = "button" + numSets;
        JButton button1 = new JButton("Button 1"); //how to get different names per button
