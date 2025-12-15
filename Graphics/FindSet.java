@@ -3,24 +3,25 @@ import java.awt.*;
 import java.io.*;
 import java.util.*;
 import java.awt.FlowLayout;
+import java.util.List;
 
 
 /**
- * This frame can be viewed in BrainBlast. This is a JPanel and is the screen which is going 
+ * This frame can be viewed in BrainBlast. This is a JPanel and is the screen which is going
  * to be viewed. It has a private JPanel which can be accessed from the HomePanel and allows users to
  * view existing saved flashcard sets.
- * 
+ *
  *
  * <p>
  * Authors: Gregory Cohen and Riya Jonnala.
- * 
+ *
  * <p>
  * Version: 1.0, 11/21/2025.
  *
- * @author     Gregory Cohen and Riya Jonnala
- * @since      11/21/2025
- * @version    1.0
- * @see        JFrame
+ * @author Gregory Cohen and Riya Jonnala
+ * @version 1.0
+ * @see JFrame
+ * @since 11/21/2025
  */
 
 public class FindSet extends JFrame {
@@ -36,7 +37,7 @@ public class FindSet extends JFrame {
         JPanel panelOfSets = new JPanel();
         //adds items till they overflow, goes to next row
         panelOfSets.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 10));
-
+    }
         /* unneeded since FlowLayout is used
         panelOfSets.setLayout(new GridLayout(100, 5)); // a 5 x 100 panel
         //look into FlowLayout - below isn't needed if using FlowLayout
@@ -48,11 +49,11 @@ public class FindSet extends JFrame {
             panelOfSets.add(new JButton("Button " + (i + 1)));
         }
         */
-        //need this to populate as many buttons as existing sets
-        //make this into an addButton method
-        //call addButton for the number of existing sets
+    //need this to populate as many buttons as existing sets
+    //make this into an addButton method
+    //call addButton for the number of existing sets
 
-        // Populate buttons using a for loop
+    // Populate buttons using a for loop
 
         /* from google, i dont really get what this does
         for (int i = 0; i <  existingSets  .length; i++) { //this is
@@ -130,8 +131,8 @@ public class FindSet extends JFrame {
 
     //not needed if using FlowLayout
     //counts number of sets based on number of saved names in the list of set names
-    public int numberOfSets (/* pass in list of set names  */) {
-        Scanner sc = new Scanner( /* file that holds the set names */ );
+    public int numberOfSets() { /* pass in list of set names  */
+        Scanner sc = new Scanner(System.in); /* file that holds the set names */
         int numSets = 0;
         while (sc.hasNext()) {
             String name = sc.next();
@@ -139,40 +140,44 @@ public class FindSet extends JFrame {
         }
         return numSets;
     }
+
     //build text field at the top of the panel to find the name
-   //scanner input to take name of the set (needs to be exact in terms of spacing, caps doesn't matter)
-   public void getASearchedName () {
-         Scanner console = new Scanner(System.in);
-         System.out.print("Which set are you looking for?");
-         String searchedName = console.nextLine();
-         //call match on searchedName
-     }
-   public boolean match (String searchedName) {
-       //check against existing list of set names (in folder)
+    //scanner input to take name of the set (needs to be exact in terms of spacing, caps doesn't matter)
+    public void getASearchedName() {
+        Scanner console = new Scanner(System.in);
+        System.out.print("Which set are you looking for?");
+        String searchedName = console.nextLine();
+        //call match on searchedName
+    }
+
+    public boolean match(String searchedName) {
+        //check against existing list of set names (in folder)
 
 
-       // String directoryPath = "path/to/your/folder"; // Replace with our actual folder path
-       // File folder = new File(directoryPath);
+        // String directoryPath = "path/to/your/folder"; // Replace with our actual folder path
+        // File folder = new File(directoryPath);
 
-       // if (folder.exists() && folder.isDirectory()) {
-       // File[] files = folder.listFiles();
-       // }
-       // Scanner sc = new Scanner(new File("______")); //go through file of file names
-       //while (sc.hasNext()) {
+        // if (folder.exists() && folder.isDirectory()) {
+        // File[] files = folder.listFiles();
+        // }
+        // Scanner sc = new Scanner(new File("______")); //go through file of file names
+        //while (sc.hasNext()) {
 
         //add substring matching
-      for (int i = 0; i < existingSets.size(); i++) {
-         if (searchedName.toUpperCase().equals(//name of list of sets(i)) {
-            return true;
-         }
-      }
+        List<String> existingSets = new ArrayList<>();
+        for (int i = 0; i < existingSets.size(); i++) {
+            if (searchedName.toUpperCase().equals("")) { //name of list of sets(i))
+                return true;
+            }
+        }
+        return false;
+    }
 
-   }
-   //adds a button to the FlowLayout (one button needed per set)
-   public void addButton (String setName, JPanel panelOfSets, int numSets) {
+    //adds a button to the FlowLayout (one button needed per set)
+    public void addButton(String setName, JPanel panelOfSets, int numSets) {
         String name = "button" + numSets;
-       JButton button1 = new JButton("Button 1"); //how to get different names per button
-       panelOfSets.add(button1);
+        JButton button1 = new JButton("Button 1"); //how to get different names per button
+        panelOfSets.add(button1);
 
     }
 
