@@ -133,6 +133,7 @@ public class FindSet extends JFrame {
         }
         return numSets;
     }
+    //build text field at the top of the panel to find the name
    //scanner input to take name of the set (needs to be exact in terms of spacing, caps doesn't matter)
    public void getASearchedName () {
          Scanner console = new Scanner(System.in);
@@ -153,9 +154,9 @@ public class FindSet extends JFrame {
        // Scanner sc = new Scanner(new File("______")); //go through file of file names
        //while (sc.hasNext()) {
 
-
+        //add substring matching
       for (int i = 0; i < existingSets.size(); i++) {
-         if (searchedName.toUppercase().equals(//name of list of sets(i)) {
+         if (searchedName.toUpperCase().equals(//name of list of sets(i)) {
             return true;
          }
       }
