@@ -12,6 +12,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.imageio.ImageIO;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.Component;
@@ -22,6 +23,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.PrintStream;
 import java.io.IOException;
+import java.io.FileNotFoundException;
 
 
 import javax.swing.JFrame; // testing - to remove
@@ -48,11 +50,18 @@ public class EditSetPanel extends JPanel implements ActionListener {
    /** Private variable to keep track of the file */
    private File setFile;
    
-   /** Private variable for each of the definitions of the set */
-   private ArrayList<String> definitionsList; 
-   /** Private variable for each of the keys of the set */
-   private ArrayList<String> keysList;
+   /** Private variable for each of the definitions text areas of the set */
+   private ArrayList<JTextArea> definitionsList; 
+   /** Private variable for each of the key text areas of the set */
+   private ArrayList<JTextArea> keysList;
    
+   /** Private variable to keep track of the rename text field*/
+   private JTextField renameFileBox;
+   
+   /** Private variable to keep track of the initial keys */
+   private ArrayList<String> initKeys;
+   /** Private variable to keep track of the initial defs */
+   private ArrayList<String> initDefs;
    /** Private variable for the keyPanel */
    private JPanel keyPanel;
    /** Private variable for the defPanel */
@@ -66,7 +75,7 @@ public class EditSetPanel extends JPanel implements ActionListener {
     */
    public EditSetPanel() {
       // call the other constructor with this file.
-      this(newUnnamedFileName());
+      this(newUnexistingFileName());
    }
    
 
@@ -77,6 +86,9 @@ public class EditSetPanel extends JPanel implements ActionListener {
    public EditSetPanel(String fileName) {
       String filePath = dir + fileName + ".txt";
       loadFile(filePath);
+      
+      keysList = new ArrayList<JTextArea>();
+      definitionsList = new ArrayList<JTextArea>();
       
       /*
                Edit Set '<>'
@@ -93,6 +105,7 @@ public class EditSetPanel extends JPanel implements ActionListener {
       
       // set the layout to be a vertical layout
       this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+      this.setMaximumSize(new Dimension(MainFrame.HEIGHT, MainFrame.WIDTH));
      
       // padding
       this.add(Box.createVerticalStrut(5));
@@ -106,9 +119,15 @@ public class EditSetPanel extends JPanel implements ActionListener {
       // creating two JButtons: one to close and one to save
       JButton closeButton = new JButton("close"); // TO DO: make an icon ************************************************
       JButton saveButton = new JButton("save"); // TO DO: make an icon **************************************************
-     
+      
+      // link them to the action listener
+      closeButton.setActionCommand("close");
+      closeButton.addActionListener(this);
+      saveButton.setActionCommand("save");
+      saveButton.addActionListener(this);
+      
       // creating the text field
-      JTextField renameFileBox = new JTextField(20);
+      renameFileBox = new JTextField(20);
       renameFileBox.setMaximumSize(renameFileBox.getPreferredSize()); // setting the max size to the preferred
       renameFileBox.setText(fileName);
      
@@ -141,6 +160,10 @@ public class EditSetPanel extends JPanel implements ActionListener {
       defPanel = new JPanel();
       defPanel.setLayout(new BoxLayout(defPanel, BoxLayout.Y_AXIS));
       
+      // padding
+      keyPanel.add(Box.createVerticalStrut(5));
+      defPanel.add(Box.createVerticalStrut(5));
+      
       // label the panels
       JLabel keyLabel = new JLabel("KEY");
       keyLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -149,13 +172,18 @@ public class EditSetPanel extends JPanel implements ActionListener {
       
       keyPanel.add(keyLabel);
       defPanel.add(defLabel);
-     
+      
+      // ADDING A BOTTOM GLUE! This glue will stay at the bottom using the position function
+      // of the add method. add(element, position); where position is the .getComponent - 1
+      keyPanel.add(Box.createVerticalGlue());
+      defPanel.add(Box.createVerticalGlue());      
+      
       // for each key-value pair (standard for to allow for indexing through both arrayLists),
-      for (int i = 0; i < keysList.size(); i++) {
-         addPair(keysList.get(i), definitionsList.get(i));
+      for (int i = 0; i < initKeys.size(); i++) {
+         addPair(initKeys.get(i), initDefs.get(i));
         
-      }
-     
+      }      
+      
       // compile bodyPanel
       bodyPanel.add(Box.createHorizontalGlue());
       bodyPanel.add(keyPanel);
@@ -164,6 +192,7 @@ public class EditSetPanel extends JPanel implements ActionListener {
       bodyPanel.add(Box.createHorizontalGlue());
       bodyPanel.add(defPanel);
       bodyPanel.add(Box.createHorizontalGlue());
+      
       
       // create a scrollpane for body panel
       JScrollPane bodyScroll = new JScrollPane(bodyPanel);
@@ -202,10 +231,19 @@ public class EditSetPanel extends JPanel implements ActionListener {
     * This method adds new text areas to the key and definition, and should be triggered solely by the
     * constructor and the add another button action.
     */
-   private void addPair(String key, String definition) {
+   private void addPair(String key, String definition) {   
+      // get the position so i don't have to use the same code many times
+      int position = keyPanel.getComponentCount() - 1;
+      
+      // padding
+      keyPanel.add(Box.createVerticalStrut(5), position);
+      defPanel.add(Box.createVerticalStrut(5), position);
+      position++;
+   
       // line separator
-      keyPanel.add(new JSeparator(SwingConstants.HORIZONTAL));
-      defPanel.add(new JSeparator(SwingConstants.HORIZONTAL));
+      keyPanel.add(new JSeparator(SwingConstants.HORIZONTAL), position);
+      defPanel.add(new JSeparator(SwingConstants.HORIZONTAL), position);
+      position++; // keep track
       
       // create new JTextAreas for the key and value
       JTextArea keyArea = new JTextArea(10, 20);
@@ -220,6 +258,10 @@ public class EditSetPanel extends JPanel implements ActionListener {
       defArea.setWrapStyleWord(true);
       defArea.setText(definition);
       
+      // add these areas to the lists
+      keysList.add(keyArea);
+      definitionsList.add(defArea);
+      
       // because JTextAreas do not allow scrolling by default, we have to manually override it. Yay.
       JScrollPane keySP = new JScrollPane(keyArea);
       JScrollPane defSP = new JScrollPane(defArea);
@@ -228,16 +270,18 @@ public class EditSetPanel extends JPanel implements ActionListener {
       defSP.setMaximumSize(defSP.getPreferredSize());
       
       // padding
-      keyPanel.add(Box.createVerticalStrut(5));
-      defPanel.add(Box.createVerticalStrut(5));
+      keyPanel.add(Box.createVerticalStrut(5), position);
+      defPanel.add(Box.createVerticalStrut(5), position);
+      position++;
       
       // add each scroll pane to their respective panels.
-      keyPanel.add(keySP);
-      defPanel.add(defSP);
+      keyPanel.add(keySP, position);
+      defPanel.add(defSP, position);
+      position++;
       
       // padding
-      keyPanel.add(Box.createVerticalStrut(5));
-      defPanel.add(Box.createVerticalStrut(5));
+      keyPanel.add(Box.createVerticalStrut(5), position);
+      defPanel.add(Box.createVerticalStrut(5), position);
       
       // revalidate/repaint the panels.
       keyPanel.revalidate();
@@ -245,17 +289,89 @@ public class EditSetPanel extends JPanel implements ActionListener {
       keyPanel.repaint();
       defPanel.repaint();
    }
-  
-  
-  
+   
+   
    /**
-    * newUnnamedFileName finds the next unique file name with the start "Unnamed Set " as a txt.
+    * saveFile does just that! Save to file. It will handle renaming and writing to file.
     */
-   public static String newUnnamedFileName() {
+   public void saveFile() {
+      // sanitize the renameFileTextBox
+      String renameFileText = renameFileBox.getText();
+      
+      // i'm just going to make it alphanumeric because that seems good
+      for (int i = renameFileText.length() - 1; i >= 0 ; i--) {
+         char thisChar = renameFileText.charAt(i);
+         
+         // if it's not alphanumeric,
+         if (!Character.isLetterOrDigit(thisChar) && thisChar != ' ') {
+            renameFileText = renameFileText.substring(0, i) + renameFileText.substring(i + 1); // remove it
+         }
+      }
+   
+      // rename file (if applicable): get the file that corresponds to the text saved in the renameFileBox
+      File renamedFile = new File(dir + renameFileText + ".txt");
+      
+      // if the file has been renamed (names !=), and already exists,
+      if (!(renamedFile.getName().equals(setFile.getName())) && renamedFile.exists()) {
+         // we need to find the file that doesn't.
+         // luckily, I made a method for that!
+         renamedFile = new File(dir + newUnexistingFileName(renameFileText) + ".txt");
+      }
+   
+      // Create a new printStream to write to the file starting at the beginning and 
+      // overwriting the text already there.
+      // as with all things with files, we must try-catch exceptions
+      try {
+         // first, rename the file.
+         if (setFile.renameTo(renamedFile)) { 
+            // we'll make the set file = to the renamed one to ensure we are writing correctly.
+            setFile = renamedFile;
+         }
+         
+         PrintStream pr = new PrintStream(setFile);
+         
+         // for each key-def text area pair
+         for (int i = 0; i < keysList.size(); i++) {
+            // get sanitized input
+            // get the key as a string WITHOUT TABS
+            String key = keysList.get(i).getText().replace("\t", " ");
+            // get the definition as a string w/o \t
+            String def = definitionsList.get(i).getText().replace("\t", " ");
+            
+            // if there is nothing in the key or definition, we don't have to track it.
+            if (key.length() == 0 && def.length() == 0) {
+               continue;
+            }
+            
+            // and print it!
+            pr.println(key + "\t" + def);
+         }
+         
+         pr.close();
+      }
+      catch (FileNotFoundException fnfe) {
+         fnfe.printStackTrace();
+      }
+      
+   }
+    
+   
+   
+   /** 
+    * this is an overload for the newUnexistingFileName which takes nothing. Default: Unnamed Set
+    */
+   public static String newUnexistingFileName() {
+      return newUnexistingFileName("Unnamed Set");
+   }
+   
+   /**
+    * newUnexistingFileName finds the next unique file name with the start "baseFileName" as a txt.
+    */
+   public static String newUnexistingFileName(String baseFileName) {
       // finding a fileName that will work -- checks if 1 exists, if not, checks if 2 exists, and so on
       // keeping track of counter and file name
       int counter = 1;
-      String fileName = "Unnamed Set "; // trailing space
+      String fileName = baseFileName + " "; // trailing space
       
       // setting first file name
       File newFile = new File(dir + fileName + counter + ".txt");
@@ -280,15 +396,15 @@ public class EditSetPanel extends JPanel implements ActionListener {
       setFile = new File(filePath);
       
       // create the ArrayList objects
-      keysList = new ArrayList<String>();
-      definitionsList = new ArrayList<String>();
+      initKeys = new ArrayList<String>();
+      initDefs = new ArrayList<String>();
       
       // create the actual file if not created already
       try {
          if (setFile.createNewFile()) { // this will only return true if the file is created.
             // add a standard "key" "def" to the lists.
-            keysList.add("Key");
-            definitionsList.add("Definition");
+            initKeys.add("Key");
+            initDefs.add("Definition");
             
             // save to file
             PrintStream pr = new PrintStream(filePath);
@@ -300,13 +416,22 @@ public class EditSetPanel extends JPanel implements ActionListener {
             
             // while there is another line to read
             while (fileReader.hasNextLine()) {
+               String thisLine = fileReader.nextLine();
+               
+               // if there is nothing in the line, continue.
+               if (thisLine.length() == 0) {
+                  continue;
+               }
+               
                // get the next line and split it into parts separated by a tab "\t": inputted as "\\t" so .split can read it
-               String[] parts = fileReader.nextLine().split("\\t");
+               String[] parts = thisLine.split("\\t");
                
                // the first object will be the key, and the second object will be the definition.
-               keysList.add(parts[0]);
-               definitionsList.add(parts[1]);
+               initKeys.add(parts[0]);
+               initDefs.add(parts[1]);
             }
+            
+            fileReader.close(); // close the scanner
          }
       }
       catch (IOException ioe) {
@@ -328,7 +453,7 @@ public class EditSetPanel extends JPanel implements ActionListener {
          this.addPair("Key", "Definition");
       }
       else if (message.equals("save")) {
-         // TO DO: Make a save method!
+         this.saveFile();
       }
       else if (message.equals("close")) {
          // TO DO: make panel to do are you sure?
@@ -341,12 +466,13 @@ public class EditSetPanel extends JPanel implements ActionListener {
    // this is for testing, to remove
    public static void main(String[] args) {
       JFrame testFrame = new JFrame("BrainBlast - testing debug");
-      EditSetPanel esp = new EditSetPanel("Names to Remember");
+      EditSetPanel esp = new EditSetPanel("Unnamed Set 1");
       
-      testFrame.setSize(800, 600);
       testFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
       testFrame.add(esp);
       
+      //testFrame.pack();
+      testFrame.setSize(800, 600);
       testFrame.setVisible(true);
       
    }

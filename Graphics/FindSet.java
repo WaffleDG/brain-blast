@@ -39,6 +39,11 @@ public class FindSet extends JFrame {
 
         /* unneeded since FlowLayout is used
         panelOfSets.setLayout(new GridLayout(100, 5)); // a 5 x 100 panel
+        //look into FlowLayout - below isn't needed if using FlowLayout
+        //panelOfSets.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));
+
+
+        panelOfSets.setLayout(new GridLayout(100, 5)); // a 5 x 100 panel
         for (int i = 0; i < 100; i++) { //need to make sure that the buttons only come up based on how many sets exist
             panelOfSets.add(new JButton("Button " + (i + 1)));
         }
@@ -85,18 +90,19 @@ public class FindSet extends JFrame {
 
         // Customize scroll bar policies (defaults are AS_NEEDED)
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS); //can always scroll up and down
-        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER); //no way to scroll horizontally
-        //since the FlowLayout means we shouldn't need to scroll horizontally
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED); //if needed, scroll right and left
 
         // Adds the JScrollPane to your frame
         add(scrollPane, BorderLayout.CENTER);
+
         setVisible(true);
     }
+
 
 /*               find set
                search by name
      ________________________________
-     | ____ ____ ____ ____ ____  || | //has all existing sets in it, can scroll to click one
+     | ____ ____ ____ ____ ____  || | //has all existing sets in it, can scroll to click one (5 in a row, 100 in a column)
      | |__| |__| |__| |__| |___| || |
      | ____ ____ ____ ____ ____  || |
      | |__| |__| |__| |__| |__|  || |
@@ -114,7 +120,7 @@ public class FindSet extends JFrame {
 // (potential cover pic for each grid box later))
     //click on a set (each is a button)
     //open to see options of what you can do with the set (can edit, quiz (given key or given definition), review)
-    //each is a button which then leads to a new panel or pop up window
+    //each is a button which then leads to a new panel
 
 //button to click to access an existing set
 

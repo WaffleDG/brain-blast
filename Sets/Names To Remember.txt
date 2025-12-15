@@ -1,3 +1,2 @@
-Key	Definition
 Gregory	Cohen
-Riya	Jonnala
+Riya  j	Jonnala
