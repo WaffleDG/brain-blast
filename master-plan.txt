@@ -1,11 +1,11 @@
 Goal: deliver a Swing-based study tool that lets users create/edit flashcard sets (key -> definition), study them as flip cards, and take quizzes with mixed multiple-choice and typed responses, all persisted to disk and navigable from a clean home -> catalog -> set workflow.
-Copy the style of code. Keep comments similar, use about the same amount, and opt for understanding over complex yet shorter articles of code.
+Coding style: copy the existing style, keep comments similar in amount, and favor readable code over compact tricks.
 
 Phase 1: Foundations and data rules
 
 - Confirm file format: key<TAB>definition, skip empty lines, sanitize tabs on save, define behavior for missing defs.
 - Decide working directory rules, unify asset and set paths, add a tiny Paths helper if needed.
-- Choose entry point (keep MainFrame.main) and document it.
+- Choose entry point (use BrainBlast.main) and document it.
 
 Phase 2: Navigation and screen wiring
 
@@ -17,11 +17,11 @@ Phase 3: Catalog and set actions
 
 - Build catalog grid from SetRegistry results (no hard-coded 100 buttons).
 - Add search/filter by set name.
-- On set click, open a SetActions panel: Learn, Quiz, Edit, Delete.
+- On set click, open a popup menu: Learn, Quiz, Edit, Delete.
 
 Phase 4: Set editor polish and safety
 
-- Keep EditSetPanel but add delete row and clear empty rows.
+- Keep EditSetPanel but add clear empty rows.
 - Harden file parsing: handle extra tabs, missing parts, blank lines without crashing.
 - Save consistency: renames update the file name shown in the catalog.
 
@@ -38,6 +38,12 @@ Phase 6: Quiz mode
 - Written response: trim and case-insensitive match; optional punctuation ignore.
 - Results panel: per-question feedback + final score.
 
+Phase 6.5: Match mode
+- New option to study flashcards: show 5 keys and 5 definitions scrambled on one screen.
+- User selects a key and matching definition; matched pairs highlight green.
+- When all 5 pairs are matched, load a new random set of 5 (repeats ok).
+- Add match to the learn screen.
+
 Phase 7: UI consistency
 
 - Normalize fonts, spacing, and button sizes across panels.
@@ -46,5 +52,5 @@ Phase 7: UI consistency
 
 Phase 8: QA and verification
 
-- Manual test checklist: create/edit/save, reopen, catalog list, search, quiz modes, scoring, delete/rename, asset loading.
+- Manual test checklist: create/edit/save, reopen, catalog list, search, quiz modes, scoring, delete, asset loading.
 - Verify sample sets load correctly and do not crash when malformed.
