@@ -1,0 +1,50 @@
+Goal: deliver a Swing-based study tool that lets users create/edit flashcard sets (key -> definition), study them as flip cards, and take quizzes with mixed multiple-choice and typed responses, all persisted to disk and navigable from a clean home -> catalog -> set workflow.
+Copy the style of code. Keep comments similar, use about the same amount, and opt for understanding over complex yet shorter articles of code.
+
+Phase 1: Foundations and data rules
+
+- Confirm file format: key<TAB>definition, skip empty lines, sanitize tabs on save, define behavior for missing defs.
+- Decide working directory rules, unify asset and set paths, add a tiny Paths helper if needed.
+- Choose entry point (keep MainFrame.main) and document it.
+
+Phase 2: Navigation and screen wiring
+
+- Wire HomePanel buttons to CardLayout targets.
+- Convert FindSet to a JPanel, not a JFrame, so it works with MainFrame.
+- Add a simple SetRegistry: list all .txt files in Sets/ and expose set names.
+
+Phase 3: Catalog and set actions
+
+- Build catalog grid from SetRegistry results (no hard-coded 100 buttons).
+- Add search/filter by set name.
+- On set click, open a SetActions panel: Learn, Quiz, Edit, Delete.
+
+Phase 4: Set editor polish and safety
+
+- Keep EditSetPanel but add delete row and clear empty rows.
+- Harden file parsing: handle extra tabs, missing parts, blank lines without crashing.
+- Save consistency: renames update the file name shown in the catalog.
+
+Phase 5: Study mode (flashcards)
+
+- Finish Flashcard class: click-to-flip between key/definition.
+- Create LearnSetPanel: next/prev, shuffle, progress display.
+- Handle empty or 1-card sets (show a friendly message).
+
+Phase 6: Quiz mode
+
+- Quiz engine: choose question direction, mix multiple choice and written.
+- Multiple choice: pick 3-4 unique distractors from the same set, avoid repeats.
+- Written response: trim and case-insensitive match; optional punctuation ignore.
+- Results panel: per-question feedback + final score.
+
+Phase 7: UI consistency
+
+- Normalize fonts, spacing, and button sizes across panels.
+- Add scroll panes where content can overflow (catalog, long definitions).
+- Basic keyboard focus order and tabbing.
+
+Phase 8: QA and verification
+
+- Manual test checklist: create/edit/save, reopen, catalog list, search, quiz modes, scoring, delete/rename, asset loading.
+- Verify sample sets load correctly and do not crash when malformed.

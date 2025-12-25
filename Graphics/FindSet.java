@@ -1,8 +1,18 @@
-import javax.swing.*;
-import java.awt.*;
-import java.io.*;
-import java.util.*;
-import java.awt.FlowLayout;
+import javax.swing.JPanel;
+import javax.swing.JButton;
+import javax.swing.JScrollPane;
+import javax.swing.JLabel;
+import javax.swing.JTextField;
+import javax.swing.JOptionPane;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import java.awt.GridLayout;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.io.File;
 
 
 /**
@@ -19,41 +29,92 @@ import java.awt.FlowLayout;
  * @author     Gregory Cohen and Riya Jonnala
  * @since      11/21/2025
  * @version    1.0
- * @see        JFrame
+ * @see        JPanel
  */
 
-public class FindSet extends JFrame {
-
-
-    public FindSet() { //FindSet constructor - makes FindSet a JScrollPane
-        setTitle("Find Set Page");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(800, 600);
-        setLocationRelativeTo(null); //centers the frame on the screen
-
-        // Create JPanel
-        JPanel panelOfSets = new JPanel();
-        //look into FlowLayout - below isn't needed if using FlowLayout
-        //panelOfSets.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));
-
-
-        panelOfSets.setLayout(new GridLayout(100, 5)); // a 5 x 100 panel
-        for (int i = 0; i < 100; i++) { //need to make sure that the buttons only come up based on how many sets exist
-            panelOfSets.add(new JButton("Button " + (i + 1)));
-        }
-
-        // Creates a JScrollPane by passing in the JPanel as the view
-        JScrollPane scrollPane = new JScrollPane(panelOfSets);
-
-        // Customize scroll bar policies (defaults are AS_NEEDED)
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS); //can always scroll up and down
-        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED); //if needed, scroll right and left
-
-        // Adds the JScrollPane to your frame
-        add(scrollPane, BorderLayout.CENTER);
-
-        setVisible(true);
-    }
+public class FindSet extends JPanel implements ActionListener {
+   /** Private list for set buttons */
+   private ArrayList<JButton> setButtons;
+   /** Private list of set names */
+   private ArrayList<String> setNames;
+   /** Private panel that holds set buttons */
+   private JPanel panelOfSets;
+   /** Private search field */
+   private JTextField searchField;
+   
+   /**
+    * FindSet constructor - builds the catalog view as a JScrollPane.
+    */
+   public FindSet() {
+      setButtons = new ArrayList<JButton>();
+      setNames = SetRegistry.getSetNames();
+      
+      // set the layout to be a vertical layout
+      this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+      
+      // padding
+      this.add(Box.createVerticalStrut(5));
+      
+      // title label at the top
+      JLabel title = new JLabel("Find Set");
+      title.setAlignmentX(CENTER_ALIGNMENT);
+      this.add(title);
+      
+      // search panel
+      JPanel searchPanel = new JPanel();
+      searchPanel.setLayout(new BoxLayout(searchPanel, BoxLayout.X_AXIS));
+      
+      JButton backButton = new JButton("Back");
+      backButton.setActionCommand("back");
+      backButton.addActionListener(this);
+      
+      // search label and text field
+      JLabel searchLabel = new JLabel("Search:");
+      searchField = new JTextField(20);
+      searchField.setMaximumSize(searchField.getPreferredSize());
+      searchField.setActionCommand("search");
+      searchField.addActionListener(this);
+      
+      // search button to trigger filter
+      JButton searchButton = new JButton("Go");
+      searchButton.setActionCommand("search");
+      searchButton.addActionListener(this);
+      
+      searchPanel.add(Box.createHorizontalStrut(5));
+      searchPanel.add(backButton);
+      searchPanel.add(Box.createHorizontalStrut(10));
+      searchPanel.add(searchLabel);
+      searchPanel.add(Box.createHorizontalStrut(5));
+      searchPanel.add(searchField);
+      searchPanel.add(Box.createHorizontalStrut(5));
+      searchPanel.add(searchButton);
+      searchPanel.add(Box.createHorizontalStrut(5));
+      
+      // limit the height of the search panel
+      searchPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, searchPanel.getPreferredSize().height));
+      this.add(searchPanel);
+      
+      // Create panel for sets
+      panelOfSets = new JPanel();
+      panelOfSets.setLayout(new GridLayout(0, 5)); // automatic rows, 5 columns
+      
+      // build initial buttons from existing set names
+      rebuildButtons("");
+      
+      // Create a JScrollPane by passing in the JPanel as the view
+      JScrollPane scrollPane = new JScrollPane(panelOfSets);
+      scrollPane.setPreferredSize(new Dimension(MainFrame.WIDTH - 20, MainFrame.HEIGHT - 80));
+      
+      // Customize scroll bar policies (defaults are AS_NEEDED)
+      scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS); // can always scroll up and down
+      scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED); // if needed, scroll right and left
+      
+      // add scroll pane
+      this.add(scrollPane);
+      this.add(Box.createVerticalStrut(5));
+      
+      this.setVisible(true);
+   }
 
 
 /*               find set
@@ -87,40 +148,112 @@ public class FindSet extends JFrame {
 
     //not needed if using FlowLayout
     //counts number of sets based on number of saved names in the list of set names
-    public int numberOfSets (/* pass in list of set names  */) {
-        Scanner sc = new Scanner( /* file that holds the set names */ );
-        int numSets = 0;
-        while (sc.hasNext()) {
-            String name = sc.next();
-            numSets++;
-        }
-        return numSets;
-    }
-   //scanner input to take name of the set (needs to be exact in terms of spacing, caps doesn't matter)
-   public void getASearchedName () {
-         Scanner console = new Scanner(System.in);
-         System.out.print("Which set are you looking for?");
-         String searchedName = console.nextLine();
-         //call match on searchedName
-     }
-   public boolean match (String searchedName) {
-       //check against existing list of set names (in folder)
-
-
-       // String directoryPath = "path/to/your/folder"; // Replace with our actual folder path
-       // File folder = new File(directoryPath);
-
-       // if (folder.exists() && folder.isDirectory()) {
-       // File[] files = folder.listFiles();
-       // }
-       // Scanner sc = new Scanner(new File("______")); //gp through file of file names
-       //while (sc.hasNext()) {
-
-
-      for (int i = 0; i < existingSets.size(); i++) {
-         if (searchedName.toUppercase().equals(//name of list of sets(i)) {
-            return true;
+   /** Override for actionPerformed */
+   @Override
+   public void actionPerformed(ActionEvent e) {
+      String message = e.getActionCommand();
+      
+      if (message.equals("search")) {
+         // filter the grid by the search field text
+         rebuildButtons(searchField.getText());
+      }
+      else if (message.equals("back")) {
+         MainFrame.switchScreen("home");
+      }
+      else {
+         String setName = message;
+         // clicking a set will open a popout action menu
+         showActionMenu(setName);
+      }
+   }
+   
+   /**
+    * rebuildButtons will refresh the grid based on the filter text.
+    */
+   private void rebuildButtons(String filterText) {
+      // normalize the filter so matching is case-insensitive
+      String filter = filterText.toLowerCase().trim();
+      
+      // clear current buttons and rebuild
+      panelOfSets.removeAll();
+      setButtons.clear();
+      
+      boolean anyAdded = false;
+      
+      for (int i = 0; i < setNames.size(); i++) {
+         String setName = setNames.get(i);
+         // skip names that do not contain the filter
+         if (filter.length() > 0 && setName.toLowerCase().indexOf(filter) == -1) {
+            continue;
          }
+         
+         // create a button for each matching set
+         JButton setButton = new JButton(setName);
+         setButton.setActionCommand(setName);
+         setButton.addActionListener(this);
+         
+         setButtons.add(setButton);
+         panelOfSets.add(setButton);
+         anyAdded = true;
+      }
+      
+      if (!anyAdded) {
+         // show a message if nothing matches
+         panelOfSets.add(new JLabel("No sets found."));
+      }
+      
+      // refresh the grid so changes appear
+      panelOfSets.revalidate();
+      panelOfSets.repaint();
+   }
+   
+   /**
+    * showActionMenu opens a popout menu for the selected set.
+    */
+   private void showActionMenu(String setName) {
+      String[] options = {"Learn", "Quiz", "Edit", "Delete", "Cancel"};
+      
+      // Bringing up a dialog with options is so much fun!
+      // we provide lots of input parameters :o
+      int choice = JOptionPane.showOptionDialog(
+         this,
+         "Choose an action for: " + setName,
+         "Set Options",
+         JOptionPane.DEFAULT_OPTION,
+         JOptionPane.PLAIN_MESSAGE,
+         null,
+         options,
+         options[0]
+      );
+      
+      if (choice == 2) {
+         // edit
+         MainFrame.loadEditSet(setName);
+      }
+      else if (choice == 3) {
+         // delete
+         int confirm = JOptionPane.showConfirmDialog(
+            this,
+            "Delete the set \"" + setName + "\"?",
+            "Confirm Delete",
+            JOptionPane.YES_NO_OPTION
+         );
+         
+         if (confirm == JOptionPane.YES_OPTION) {
+            File setFile = Paths.setFile(setName);
+            if (setFile.exists() && setFile.delete()) {
+               // refresh list after delete
+               setNames = SetRegistry.getSetNames();
+               rebuildButtons(searchField.getText());
+            }
+            else {
+               JOptionPane.showMessageDialog(this, "Could not delete the set.", "Delete Failed", JOptionPane.ERROR_MESSAGE);
+            }
+         }
+      }
+      else if (choice == 0 || choice == 1) {
+         // placeholder for learn/quiz
+         JOptionPane.showMessageDialog(this, "Coming soon!", "Not Implemented", JOptionPane.INFORMATION_MESSAGE);
       }
    }
 

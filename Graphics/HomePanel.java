@@ -95,14 +95,14 @@ public class HomePanel extends JPanel implements ActionListener {
       try {
          /// background image
          // create the file
-         File bgSource = new File("Assets/HomePanel Background.png");
+         File bgSource = new File(Paths.ASSETS_DIR, "HomePanel Background.png");
          
          // read it as a BufferedImage
          backgroundImage = ImageIO.read(bgSource);
          
          /// logo image
          // create the file
-         File logoSource = new File("Assets/Brain Blast Logo.png");
+         File logoSource = new File(Paths.ASSETS_DIR, "Brain Blast Logo.png");
          
          // read the file as a bufferedImage
          logoImage = ImageIO.read(logoSource);

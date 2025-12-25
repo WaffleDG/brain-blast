@@ -56,7 +56,7 @@ public class MainFrame extends JFrame {
       
       // then add the panels
       mainPanel.add(new HomePanel(), "home"); // this is the first added, by default will be visible first.
-      //mainPanel.add(new FindSet(), "catalog");
+      mainPanel.add(new FindSet(), "catalog");
       
       // how to swap
       // cl.show(mainPanel, "test");
@@ -78,6 +78,10 @@ public class MainFrame extends JFrame {
       if (target.equals("edit")) {
          mainPanel.add(new EditSetPanel(), "edit");
       }
+      else if (target.equals("catalog")) {
+         // reload catalog each time to reflect new/renamed sets
+         mainPanel.add(new FindSet(), "catalog");
+      }
       
       cl.show(mainPanel, target);
    }
@@ -93,7 +97,8 @@ public class MainFrame extends JFrame {
       cl.show(mainPanel, "edit");
    }
    
-   // this is for testing (until we add the BrainBlast.java class!)
+   
+   // this is for testing (preferred entry point is BrainBlast.main)
    public static void main(String[] args) {
       new MainFrame();
    }

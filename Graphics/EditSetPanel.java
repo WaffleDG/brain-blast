@@ -10,23 +10,14 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
-import javax.imageio.ImageIO;
-import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.PrintStream;
 import java.io.IOException;
 import java.io.FileNotFoundException;
-
-
-import javax.swing.JFrame; // testing - to remove
 
 /**
  * Screen for creating or editing new sets for Brain Blast! This will provide the user the ability to create a new set, entering as many keyword-definition pairs as they want!
@@ -68,7 +59,7 @@ public class EditSetPanel extends JPanel implements ActionListener {
    private JPanel defPanel;
    
    /** Private static final variable for the directory */
-   private static final String dir = "../Sets/";
+   private static final String dir = Paths.SETS_DIR + "/";
    
    /**
     * Constructor without filePath for when the file is just created - standard name is Unnamed Set #
@@ -154,7 +145,7 @@ public class EditSetPanel extends JPanel implements ActionListener {
       JPanel bodyPanel = new JPanel();
       bodyPanel.setLayout(new BoxLayout(bodyPanel, BoxLayout.X_AXIS));
       
-      // create panels for the keys and for the definitions
+      // create panels for the keys and definitions
       keyPanel = new JPanel();
       keyPanel.setLayout(new BoxLayout(keyPanel, BoxLayout.Y_AXIS));
       defPanel = new JPanel();
@@ -169,7 +160,6 @@ public class EditSetPanel extends JPanel implements ActionListener {
       keyLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
       JLabel defLabel = new JLabel("DEFINITION");
       defLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-      
       keyPanel.add(keyLabel);
       defPanel.add(defLabel);
       
@@ -180,9 +170,9 @@ public class EditSetPanel extends JPanel implements ActionListener {
       
       // for each key-value pair (standard for to allow for indexing through both arrayLists),
       for (int i = 0; i < initKeys.size(); i++) {
-         addPair(initKeys.get(i), initDefs.get(i));
-        
+         addPairData(initKeys.get(i), initDefs.get(i));
       }      
+      rebuildPanels();
       
       // compile bodyPanel
       bodyPanel.add(Box.createHorizontalGlue());
@@ -208,7 +198,14 @@ public class EditSetPanel extends JPanel implements ActionListener {
       addButton.setActionCommand("add");
       addButton.addActionListener(this);
       
+      // create a button to clear empty rows
+      JButton clearButton = new JButton("Clear Empty");
+      clearButton.setActionCommand("clear");
+      clearButton.addActionListener(this);
+      
       footer.add(addButton);
+      footer.add(Box.createHorizontalStrut(10));
+      footer.add(clearButton);
       
       ////////////////////////////////////////////// COMPILE //////////////////////////////////////////////
       
@@ -231,20 +228,15 @@ public class EditSetPanel extends JPanel implements ActionListener {
     * This method adds new text areas to the key and definition, and should be triggered solely by the
     * constructor and the add another button action.
     */
-   private void addPair(String key, String definition) {   
-      // get the position so i don't have to use the same code many times
-      int position = keyPanel.getComponentCount() - 1;
-      
-      // padding
-      keyPanel.add(Box.createVerticalStrut(5), position);
-      defPanel.add(Box.createVerticalStrut(5), position);
-      position++;
+   private void addPair(String key, String definition) {
+      addPairData(key, definition);
+      rebuildPanels();
+   }
    
-      // line separator
-      keyPanel.add(new JSeparator(SwingConstants.HORIZONTAL), position);
-      defPanel.add(new JSeparator(SwingConstants.HORIZONTAL), position);
-      position++; // keep track
-      
+   /**
+    * addPairData creates and stores a new pair without touching the panel layout.
+    */
+   private void addPairData(String key, String definition) {
       // create new JTextAreas for the key and value
       JTextArea keyArea = new JTextArea(10, 20);
       keyArea.setMaximumSize(keyArea.getPreferredSize());
@@ -261,6 +253,56 @@ public class EditSetPanel extends JPanel implements ActionListener {
       // add these areas to the lists
       keysList.add(keyArea);
       definitionsList.add(defArea);
+   }
+   
+   /**
+    * rebuildPanels redraws the key/definition columns based on the saved pairs.
+    */
+   private void rebuildPanels() {   
+      // clear existing components
+      keyPanel.removeAll();
+      defPanel.removeAll();
+      
+      // re-add labels
+      JLabel keyLabel = new JLabel("KEY");
+      keyLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+      JLabel defLabel = new JLabel("DEFINITION");
+      defLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+      keyPanel.add(keyLabel);
+      defPanel.add(defLabel);
+      
+      // add bottom glue
+      keyPanel.add(Box.createVerticalGlue());
+      defPanel.add(Box.createVerticalGlue());
+      
+      // add each pair
+      for (int i = 0; i < keysList.size(); i++) {
+         addPairComponents(keysList.get(i), definitionsList.get(i), i);
+      }
+      
+      // revalidate/repaint the panels.
+      keyPanel.revalidate();
+      defPanel.revalidate();
+      keyPanel.repaint();
+      defPanel.repaint();
+   }
+   
+   /**
+    * addPairComponents adds the visual components for a single pair.
+    */
+   private void addPairComponents(JTextArea keyArea, JTextArea defArea, int index) {   
+      // get the position so i don't have to use the same code many times
+      int position = keyPanel.getComponentCount() - 1;
+      
+      // padding
+      keyPanel.add(Box.createVerticalStrut(5), position);
+      defPanel.add(Box.createVerticalStrut(5), position);
+      position++;
+   
+      // line separator
+      keyPanel.add(new JSeparator(SwingConstants.HORIZONTAL), position);
+      defPanel.add(new JSeparator(SwingConstants.HORIZONTAL), position);
+      position++; // keep track
       
       // because JTextAreas do not allow scrolling by default, we have to manually override it. Yay.
       JScrollPane keySP = new JScrollPane(keyArea);
@@ -280,6 +322,10 @@ public class EditSetPanel extends JPanel implements ActionListener {
       position++;
       
       // padding
+      keyPanel.add(Box.createVerticalStrut(5), position);
+      defPanel.add(Box.createVerticalStrut(5), position);
+      
+      // add matching spacing so rows stay aligned
       keyPanel.add(Box.createVerticalStrut(5), position);
       defPanel.add(Box.createVerticalStrut(5), position);
       
@@ -327,6 +373,13 @@ public class EditSetPanel extends JPanel implements ActionListener {
             // we'll make the set file = to the renamed one to ensure we are writing correctly.
             setFile = renamedFile;
          }
+         
+         // update the rename box to the actual file name
+         String savedName = setFile.getName();
+         if (savedName.endsWith(".txt")) {
+            savedName = savedName.substring(0, savedName.length() - 4);
+         }
+         renameFileBox.setText(savedName);
          
          PrintStream pr = new PrintStream(setFile);
          
@@ -409,6 +462,7 @@ public class EditSetPanel extends JPanel implements ActionListener {
             // save to file
             PrintStream pr = new PrintStream(filePath);
             pr.println("Key\tDefinition");
+            pr.close();
          }
          else { // if the file already exists we have to read it
             // create a new scanner to read file
@@ -424,11 +478,17 @@ public class EditSetPanel extends JPanel implements ActionListener {
                }
                
                // get the next line and split it into parts separated by a tab "\t": inputted as "\\t" so .split can read it
-               String[] parts = thisLine.split("\\t");
+               // split by the first tab only; anything after stays in the definition
+               String[] parts = thisLine.split("\\t", 2);
                
-               // the first object will be the key, and the second object will be the definition.
+               // the first object will be the key, and the second object will be the definition (if present).
                initKeys.add(parts[0]);
-               initDefs.add(parts[1]);
+               if (parts.length > 1) {
+                  initDefs.add(parts[1]);
+               }
+               else {
+                  initDefs.add("");
+               }
             }
             
             fileReader.close(); // close the scanner
@@ -436,9 +496,11 @@ public class EditSetPanel extends JPanel implements ActionListener {
       }
       catch (IOException ioe) {
          ioe.printStackTrace();
-         
-         // do not load program if there's an error with the file
-         System.exit(0);
+         System.err.println("Warning: failed to read or create set file: " + setFile.getPath());
+         // initialize defaults so UI can still be shown
+         if (initKeys.isEmpty()) initKeys.add("Key");
+         if (initDefs.isEmpty()) initDefs.add("Definition");
+         // do not terminate the app; show editable empty set instead
       }
    }
    
@@ -452,6 +514,9 @@ public class EditSetPanel extends JPanel implements ActionListener {
       if (message.equals("add")) {
          this.addPair("Key", "Definition");
       }
+      else if (message.equals("clear")) {
+         clearEmptyRows();
+      }
       else if (message.equals("save")) {
          this.saveFile();
       }
@@ -461,19 +526,28 @@ public class EditSetPanel extends JPanel implements ActionListener {
       }
    }
    
-   
-   
-   // this is for testing, to remove
-   public static void main(String[] args) {
-      JFrame testFrame = new JFrame("BrainBlast - testing debug");
-      EditSetPanel esp = new EditSetPanel("Unnamed Set 1");
+   /**
+    * clearEmptyRows removes any pairs that have no key and no definition.
+    */
+   private void clearEmptyRows() {
+      for (int i = keysList.size() - 1; i >= 0; i--) {
+         String key = keysList.get(i).getText().trim();
+         String def = definitionsList.get(i).getText().trim();
+         
+         if (key.length() == 0 && def.length() == 0) {
+            keysList.remove(i);
+            definitionsList.remove(i);
+         }
+      }
       
-      testFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-      testFrame.add(esp);
+      if (keysList.size() == 0) {
+         addPairData("Key", "Definition");
+      }
       
-      //testFrame.pack();
-      testFrame.setSize(800, 600);
-      testFrame.setVisible(true);
-      
+      rebuildPanels();
    }
+   
+   
+   
+   // (test main removed) central startup is MainFrame.main
 }  
