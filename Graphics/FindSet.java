@@ -36,6 +36,8 @@ public class FindSet extends JPanel implements ActionListener {
    private ArrayList<JButton> setButtons;
    /** Private list of set names */
    private ArrayList<String> setNames;
+   /** Private registry for loading sets */
+   private SetRegistry registry;
    /** Private panel that holds set buttons */
    private JPanel panelOfSets;
    /** Private search field */
@@ -46,7 +48,8 @@ public class FindSet extends JPanel implements ActionListener {
     */
    public FindSet() {
       setButtons = new ArrayList<JButton>();
-      setNames = SetRegistry.getSetNames();
+      registry = new SetRegistry();
+      setNames = registry.getSetNames();
       
       // set the layout to be a vertical layout
       this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -210,7 +213,8 @@ public class FindSet extends JPanel implements ActionListener {
     * showActionMenu opens a popout menu for the selected set.
     */
    private void showActionMenu(String setName) {
-      String[] options = {"Learn", "Quiz", "Edit", "Delete", "Cancel"};
+      // reverse order so the GUI shows learn -> cancel
+      String[] options = {"Cancel", "Delete", "Edit", "Quiz", "Learn"};
       
       // Bringing up a dialog with options is so much fun!
       // we provide lots of input parameters :o
@@ -222,14 +226,22 @@ public class FindSet extends JPanel implements ActionListener {
          JOptionPane.PLAIN_MESSAGE,
          null,
          options,
-         options[0]
+         options[4] // default to Learn
       );
       
-      if (choice == 2) {
+      if (choice == 4) {
+         // learn
+         MainFrame.loadLearnSet(setName);
+      }
+      else if (choice == 3) {
+         // quiz
+         MainFrame.loadQuizSet(setName);
+      }
+      else if (choice == 2) {
          // edit
          MainFrame.loadEditSet(setName);
       }
-      else if (choice == 3) {
+      else if (choice == 1) {
          // delete
          int confirm = JOptionPane.showConfirmDialog(
             this,
@@ -242,7 +254,7 @@ public class FindSet extends JPanel implements ActionListener {
             File setFile = Paths.setFile(setName);
             if (setFile.exists() && setFile.delete()) {
                // refresh list after delete
-               setNames = SetRegistry.getSetNames();
+               setNames = registry.getSetNames();
                rebuildButtons(searchField.getText());
             }
             else {
@@ -250,10 +262,7 @@ public class FindSet extends JPanel implements ActionListener {
             }
          }
       }
-      else if (choice == 0 || choice == 1) {
-         // placeholder for learn/quiz
-         JOptionPane.showMessageDialog(this, "Coming soon!", "Not Implemented", JOptionPane.INFORMATION_MESSAGE);
-      }
+      // no action for cancel
    }
 
 }

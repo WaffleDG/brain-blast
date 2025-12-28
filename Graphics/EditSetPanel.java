@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Scanner;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
 import javax.swing.JButton;
@@ -16,7 +15,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.io.File;
 import java.io.PrintStream;
-import java.io.IOException;
 import java.io.FileNotFoundException;
 
 /**
@@ -76,7 +74,11 @@ public class EditSetPanel extends JPanel implements ActionListener {
     */
    public EditSetPanel(String fileName) {
       String filePath = dir + fileName + ".txt";
-      loadFile(filePath);
+      SetRegistry registry = new SetRegistry();
+      registry.loadFile(filePath);
+      setFile = registry.getSetFile();
+      initKeys = registry.getKeys();
+      initDefs = registry.getDefs();
       
       keysList = new ArrayList<JTextArea>();
       definitionsList = new ArrayList<JTextArea>();
@@ -441,68 +443,6 @@ public class EditSetPanel extends JPanel implements ActionListener {
   
   
   
-   /**
-    * loadFile takes a filePath and creates or gets the corresponding file.
-    */
-   private void loadFile(String filePath) {
-      // create the File object
-      setFile = new File(filePath);
-      
-      // create the ArrayList objects
-      initKeys = new ArrayList<String>();
-      initDefs = new ArrayList<String>();
-      
-      // create the actual file if not created already
-      try {
-         if (setFile.createNewFile()) { // this will only return true if the file is created.
-            // add a standard "key" "def" to the lists.
-            initKeys.add("Key");
-            initDefs.add("Definition");
-            
-            // save to file
-            PrintStream pr = new PrintStream(filePath);
-            pr.println("Key\tDefinition");
-            pr.close();
-         }
-         else { // if the file already exists we have to read it
-            // create a new scanner to read file
-            Scanner fileReader = new Scanner(setFile);
-            
-            // while there is another line to read
-            while (fileReader.hasNextLine()) {
-               String thisLine = fileReader.nextLine();
-               
-               // if there is nothing in the line, continue.
-               if (thisLine.length() == 0) {
-                  continue;
-               }
-               
-               // get the next line and split it into parts separated by a tab "\t": inputted as "\\t" so .split can read it
-               // split by the first tab only; anything after stays in the definition
-               String[] parts = thisLine.split("\\t", 2);
-               
-               // the first object will be the key, and the second object will be the definition (if present).
-               initKeys.add(parts[0]);
-               if (parts.length > 1) {
-                  initDefs.add(parts[1]);
-               }
-               else {
-                  initDefs.add("");
-               }
-            }
-            
-            fileReader.close(); // close the scanner
-         }
-      }
-      catch (IOException ioe) {
-         ioe.printStackTrace();
-         System.err.println("Warning: failed to read or create set file: " + setFile.getPath());
-         // initialize defaults so UI can still be shown
-         if (initKeys.isEmpty()) initKeys.add("Key");
-         if (initDefs.isEmpty()) initDefs.add("Definition");
-         // do not terminate the app; show editable empty set instead
-      }
-   }
    
    
    

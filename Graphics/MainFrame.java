@@ -97,6 +97,26 @@ public class MainFrame extends JFrame {
       cl.show(mainPanel, "edit");
    }
    
+   /** 
+    * the loadLearnSet method creates a new LearnSetPanel and sets it to the visible screen.
+    */
+   public static void loadLearnSet(String setName) {
+      System.out.println("recieved: learn " + setName);
+      mainPanel.add(new LearnSetPanel(setName), "learn");
+      
+      cl.show(mainPanel, "learn");
+   }
+   
+   /** 
+    * the loadQuizSet method creates a new QuizPanel and sets it to the visible screen.
+    */
+   public static void loadQuizSet(String setName) {
+      System.out.println("recieved: quiz " + setName);
+      mainPanel.add(new QuizPanel(setName), "quiz");
+      
+      cl.show(mainPanel, "quiz");
+   }
+   
    
    // this is for testing (preferred entry point is BrainBlast.main)
    public static void main(String[] args) {
