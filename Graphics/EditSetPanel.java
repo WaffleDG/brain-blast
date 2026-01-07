@@ -27,12 +27,12 @@ import java.io.FileNotFoundException;
  * Authors: Gregory Cohen and Riya Jonnala.
  *
  * <p>
- * Version: 1.0, 11/21/2025.
+ * Version: 2.0, 12/11/2025.
  *
  * 
  * @author     Gregory Cohen and Riya Jonalla
- * @since      11/21/2025
- * @version    1.0
+ * @since      12/11/2025
+ * @version    2.0
  * @see        JPanel
  */
 public class EditSetPanel extends JPanel implements ActionListener {
