@@ -9,9 +9,13 @@ import javax.swing.ActionMap;
 import javax.swing.KeyStroke;
 import javax.swing.JComponent;
 import javax.swing.AbstractAction;
+import javax.swing.JSlider;
+import javax.swing.JCheckBox;
+import javax.swing.JOptionPane;
 import java.awt.GridLayout;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -77,6 +81,22 @@ public class QuizPanel extends JPanel implements ActionListener {
    private boolean currentIsMultipleChoice;
    /** Private flag for question direction */
    private boolean currentAskKey;
+   /** Private index for the correct choice button */
+   private int correctChoiceIndex;
+   /** Private default color for choice buttons */
+   private Color defaultChoiceColor;
+   /** Private total number of questions */
+   private int totalQuestions;
+   /** Private flag for allowing multiple choice */
+   private boolean allowMultipleChoice;
+   /** Private flag for allowing written response */
+   private boolean allowWritten;
+   /** Private slider for question count */
+   private JSlider questionSlider;
+   /** Private checkbox for multiple choice */
+   private JCheckBox mcqCheck;
+   /** Private checkbox for free response */
+   private JCheckBox frqCheck;
    
    /**
     * Constructor for the quiz screen.
@@ -174,6 +194,13 @@ public class QuizPanel extends JPanel implements ActionListener {
          choiceButton.addActionListener(this);
          choiceButton.setFocusable(false);
          choiceButton.setFocusPainted(false);
+         choiceButton.setOpaque(true);
+         choiceButton.setContentAreaFilled(true);
+         
+         // store the default background color once
+         if (defaultChoiceColor == null) {
+            defaultChoiceColor = choiceButton.getBackground();
+         }
          choiceButtons.add(choiceButton);
          choicePanel.add(choiceButton);
       }
@@ -233,6 +260,13 @@ public class QuizPanel extends JPanel implements ActionListener {
       // this keeps the quiz order randomized
       buildQuestionOrder();
       currentIndex = 0;
+      totalQuestions = order.size();
+      allowMultipleChoice = true;
+      allowWritten = true;
+      
+      // ask the user how they want the quiz to run
+      // this uses a small panel with a slider and checkboxes
+      configureQuiz();
       score = 0;
       loadQuestion();
       setupKeyBinds();
@@ -256,12 +290,91 @@ public class QuizPanel extends JPanel implements ActionListener {
    }
    
    /**
+    * configureQuiz asks the user for question count and type.
+    */
+   private void configureQuiz() {
+      // build a small setup panel
+      JPanel setupPanel = new JPanel();
+      setupPanel.setLayout(new BoxLayout(setupPanel, BoxLayout.Y_AXIS));
+      
+      // slider for question count
+      questionSlider = new JSlider(1, order.size(), order.size());
+      questionSlider.setMajorTickSpacing(1);
+      questionSlider.setPaintTicks(true);
+      questionSlider.setPaintLabels(false);
+      
+      // label with a live number next to it
+      JPanel countRow = new JPanel();
+      countRow.setLayout(new BoxLayout(countRow, BoxLayout.X_AXIS));
+      
+      JLabel sliderLabel = new JLabel("Number of questions: ");
+      JLabel sliderValue = new JLabel(String.valueOf(questionSlider.getValue()));
+      
+      questionSlider.addChangeListener(e -> {
+         sliderValue.setText(String.valueOf(questionSlider.getValue()));
+      });
+      
+      countRow.add(sliderLabel);
+      countRow.add(sliderValue);
+      countRow.setAlignmentX(LEFT_ALIGNMENT);
+      
+      questionSlider.setAlignmentX(LEFT_ALIGNMENT);
+      
+      setupPanel.add(countRow);
+      setupPanel.add(questionSlider);
+      setupPanel.add(Box.createVerticalStrut(10));
+      
+      // checkboxes for question type
+      mcqCheck = new JCheckBox("Multiple Choice");
+      frqCheck = new JCheckBox("Free Response");
+      mcqCheck.setSelected(true);
+      frqCheck.setSelected(true);
+      
+      mcqCheck.setAlignmentX(LEFT_ALIGNMENT);
+      frqCheck.setAlignmentX(LEFT_ALIGNMENT);
+      
+      setupPanel.add(new JLabel("Question types:"));
+      setupPanel.add(mcqCheck);
+      setupPanel.add(frqCheck);
+      
+      // show the dialog and wait for input
+      int result = JOptionPane.showConfirmDialog(
+         this,
+         setupPanel,
+         "Quiz Setup",
+         JOptionPane.OK_CANCEL_OPTION,
+         JOptionPane.PLAIN_MESSAGE
+      );
+      
+      // if the user cancels, keep defaults (full length, both types)
+      if (result != JOptionPane.OK_OPTION) {
+         totalQuestions = order.size();
+         allowMultipleChoice = true;
+         allowWritten = true;
+         return;
+      }
+      
+      // use the slider value for total questions
+      totalQuestions = questionSlider.getValue();
+      
+      // read checkbox state
+      allowMultipleChoice = mcqCheck.isSelected();
+      allowWritten = frqCheck.isSelected();
+      
+      // if both are unchecked, default to both
+      if (!allowMultipleChoice && !allowWritten) {
+         allowMultipleChoice = true;
+         allowWritten = true;
+      }
+   }
+   
+   /**
     * loadQuestion sets up the UI for the current question.
     */
    private void loadQuestion() {
       // check if quiz is finished
       // if we are out of questions, show the results instead
-      if (currentIndex >= order.size()) {
+      if (currentIndex >= totalQuestions) {
          showResults();
          return;
       }
@@ -273,11 +386,19 @@ public class QuizPanel extends JPanel implements ActionListener {
       
       // decide question type: alternate multiple choice and written
       // even = multiple choice, odd = written response
-      if (currentIndex % 2 == 0) {
+      if (allowMultipleChoice && !allowWritten) {
          currentIsMultipleChoice = true;
       }
-      else {
+      else if (!allowMultipleChoice && allowWritten) {
          currentIsMultipleChoice = false;
+      }
+      else {
+         if (currentIndex % 2 == 0) {
+            currentIsMultipleChoice = true;
+         }
+         else {
+            currentIsMultipleChoice = false;
+         }
       }
       
       // randomly choose which side to ask using Math.random()
@@ -313,7 +434,7 @@ public class QuizPanel extends JPanel implements ActionListener {
       }
       
       // show progress so the user knows where they are
-      progressLabel.setText((currentIndex + 1) + " / " + order.size());
+      progressLabel.setText((currentIndex + 1) + " / " + totalQuestions);
       
       // show the correct UI for this question type
       if (currentIsMultipleChoice) {
@@ -373,9 +494,24 @@ public class QuizPanel extends JPanel implements ActionListener {
             btn.setText(choices.get(i));
             btn.setEnabled(true);
             btn.setVisible(true);
+            // reset background so previous highlights do not carry over
+            btn.setBackground(defaultChoiceColor);
          }
          else {
             btn.setVisible(false);
+         }
+      }
+      
+      // track which button is correct so we can highlight it later
+      correctChoiceIndex = -1;
+      for (int i = 0; i < choiceButtons.size(); i++) {
+         JButton btn = choiceButtons.get(i);
+         if (!btn.isVisible()) {
+            continue;
+         }
+         if (btn.getText().equals(currentAnswer)) {
+            correctChoiceIndex = i;
+            break;
          }
       }
    }
@@ -433,7 +569,7 @@ public class QuizPanel extends JPanel implements ActionListener {
       // show the final score and hide input controls
       questionLabel.setText("Quiz complete!");
       instructionLabel.setText(" ");
-      progressLabel.setText("Score: " + score + " / " + order.size());
+      progressLabel.setText("Score: " + score + " / " + totalQuestions);
       feedbackLabel.setText(" ");
       
       choicePanel.setVisible(false);
@@ -494,6 +630,16 @@ public class QuizPanel extends JPanel implements ActionListener {
          // prevents clicking multiple answers
          for (int i = 0; i < choiceButtons.size(); i++) {
             choiceButtons.get(i).setEnabled(false);
+         }
+        
+         // color the chosen button red if incorrect
+         if (!response.trim().equalsIgnoreCase(currentAnswer.trim())) {
+            source.setBackground(Color.RED);
+         }
+         
+         // color the correct answer green
+         if (correctChoiceIndex >= 0 && correctChoiceIndex < choiceButtons.size()) {
+            choiceButtons.get(correctChoiceIndex).setBackground(Color.GREEN);
          }
          
          handleAnswer(response);

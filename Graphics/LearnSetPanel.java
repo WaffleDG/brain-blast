@@ -52,11 +52,15 @@ public class LearnSetPanel extends JPanel implements ActionListener {
    private boolean spaceHeld;
    /** Private index for current card */
    private int currentIndex;
+   /** Private name of the set */
+   private String setName;
    
    /**
     * Constructor for the learn screen.
     */
    public LearnSetPanel(String setName) {
+      // save the name so we can open match mode later
+      this.setName = setName;
       this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
       
       // load the set data from file
@@ -139,6 +143,13 @@ public class LearnSetPanel extends JPanel implements ActionListener {
       shuffleButton.setFocusable(false);
       shuffleButton.setFocusPainted(false);
       
+      // match button
+      JButton matchButton = new JButton("Match");
+      matchButton.setActionCommand("match");
+      matchButton.addActionListener(this);
+      matchButton.setFocusable(false);
+      matchButton.setFocusPainted(false);
+      
       // back to catalog
       JButton backButton = new JButton("Back");
       backButton.setActionCommand("back");
@@ -146,12 +157,14 @@ public class LearnSetPanel extends JPanel implements ActionListener {
       backButton.setFocusable(false);
       backButton.setFocusPainted(false);
       
-      // add buttons with spacing
+      // add buttons with spacing (Back, Shuffle, Match, Prev, Next)
       buttonPanel.add(backButton);
       buttonPanel.add(Box.createHorizontalStrut(10));
-      buttonPanel.add(prevButton);
-      buttonPanel.add(Box.createHorizontalStrut(10));
       buttonPanel.add(shuffleButton);
+      buttonPanel.add(Box.createHorizontalStrut(10));
+      buttonPanel.add(matchButton);
+      buttonPanel.add(Box.createHorizontalStrut(10));
+      buttonPanel.add(prevButton);
       buttonPanel.add(Box.createHorizontalStrut(10));
       buttonPanel.add(nextButton);
       
@@ -335,6 +348,10 @@ public class LearnSetPanel extends JPanel implements ActionListener {
          // randomize the order and restart
          shuffleCards();
          updateCard();
+      }
+      else if (message.equals("match")) {
+         // switch to match mode for this set
+         MainFrame.loadMatchSet(setName);
       }
       else if (message.equals("back")) {
          // return to the catalog view

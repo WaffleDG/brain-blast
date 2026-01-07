@@ -108,6 +108,16 @@ public class MainFrame extends JFrame {
    }
    
    /** 
+    * the loadMatchSet method creates a new MatchPanel and sets it to the visible screen.
+    */
+   public static void loadMatchSet(String setName) {
+      System.out.println("recieved: match " + setName);
+      mainPanel.add(new MatchPanel(setName), "match");
+      
+      cl.show(mainPanel, "match");
+   }
+   
+   /** 
     * the loadQuizSet method creates a new QuizPanel and sets it to the visible screen.
     */
    public static void loadQuizSet(String setName) {
