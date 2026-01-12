@@ -83,6 +83,9 @@ public class EditSetPanel extends JPanel implements ActionListener {
       keysList = new ArrayList<JTextArea>();
       definitionsList = new ArrayList<JTextArea>();
       
+      // apply shared panel styling
+      UIStyle.stylePanel(this);
+      
       /*
                Edit Set '<>'
         |---------------------------|  
@@ -98,13 +101,21 @@ public class EditSetPanel extends JPanel implements ActionListener {
       
       // set the layout to be a vertical layout
       this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-      this.setMaximumSize(new Dimension(MainFrame.HEIGHT, MainFrame.WIDTH));
+      this.setMaximumSize(new Dimension(MainFrame.WIDTH, MainFrame.HEIGHT));
      
       // padding
+      this.add(Box.createVerticalStrut(5));
+      
+      // title label to match other screens
+      JLabel title = new JLabel("Edit Set");
+      UIStyle.styleTitle(title);
+      title.setAlignmentX(Component.CENTER_ALIGNMENT);
+      this.add(title);
       this.add(Box.createVerticalStrut(5));
      
       ////////////////////////////////////////////// HEADER //////////////////////////////////////////////
       JPanel header = new JPanel();
+      UIStyle.stylePanel(header);
      
       // horizontal layout for this one
       header.setLayout(new BoxLayout(header, BoxLayout.X_AXIS));
@@ -112,6 +123,12 @@ public class EditSetPanel extends JPanel implements ActionListener {
       // creating two JButtons: one to close and one to save
       JButton closeButton = new JButton("close"); // TO DO: make an icon ************************************************
       JButton saveButton = new JButton("save"); // TO DO: make an icon **************************************************
+      UIStyle.styleButton(closeButton, 90, 32);
+      UIStyle.styleButton(saveButton, 90, 32);
+      closeButton.setFocusable(false);
+      closeButton.setFocusPainted(false);
+      saveButton.setFocusable(false);
+      saveButton.setFocusPainted(false);
       
       // link them to the action listener
       closeButton.setActionCommand("close");
@@ -122,9 +139,11 @@ public class EditSetPanel extends JPanel implements ActionListener {
       // creating the text field
       renameFileBox = new JTextField(20);
       renameFileBox.setMaximumSize(renameFileBox.getPreferredSize()); // setting the max size to the preferred
+      renameFileBox.setFont(UIStyle.BODY_FONT);
       renameFileBox.setText(fileName);
      
       JLabel renameLabel = new JLabel("Set Name:");
+      UIStyle.styleLabel(renameLabel);
      
       // fill the header panel
       header.add(Box.createHorizontalStrut(5));
@@ -146,12 +165,26 @@ public class EditSetPanel extends JPanel implements ActionListener {
       // create a panel to hold the key and definition panels
       JPanel bodyPanel = new JPanel();
       bodyPanel.setLayout(new BoxLayout(bodyPanel, BoxLayout.X_AXIS));
+      UIStyle.stylePanel(bodyPanel);
+      bodyPanel.setAlignmentY(Component.TOP_ALIGNMENT);
       
       // create panels for the keys and definitions
       keyPanel = new JPanel();
       keyPanel.setLayout(new BoxLayout(keyPanel, BoxLayout.Y_AXIS));
       defPanel = new JPanel();
       defPanel.setLayout(new BoxLayout(defPanel, BoxLayout.Y_AXIS));
+      UIStyle.styleCardPanel(keyPanel);
+      UIStyle.styleCardPanel(defPanel);
+      
+      // keep the columns the same width so the divider stays centered
+      // let height grow naturally for scrolling
+      int colW = 320;
+      keyPanel.setMinimumSize(new Dimension(colW, 0));
+      defPanel.setMinimumSize(new Dimension(colW, 0));
+      keyPanel.setMaximumSize(new Dimension(colW, Integer.MAX_VALUE));
+      defPanel.setMaximumSize(new Dimension(colW, Integer.MAX_VALUE));
+      keyPanel.setAlignmentY(Component.TOP_ALIGNMENT);
+      defPanel.setAlignmentY(Component.TOP_ALIGNMENT);
       
       // padding
       keyPanel.add(Box.createVerticalStrut(5));
@@ -162,6 +195,8 @@ public class EditSetPanel extends JPanel implements ActionListener {
       keyLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
       JLabel defLabel = new JLabel("DEFINITION");
       defLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+      UIStyle.styleLabel(keyLabel);
+      UIStyle.styleLabel(defLabel);
       keyPanel.add(keyLabel);
       defPanel.add(defLabel);
       
@@ -179,9 +214,11 @@ public class EditSetPanel extends JPanel implements ActionListener {
       // compile bodyPanel
       bodyPanel.add(Box.createHorizontalGlue());
       bodyPanel.add(keyPanel);
-      bodyPanel.add(Box.createHorizontalGlue());
-      bodyPanel.add(new JSeparator(SwingConstants.VERTICAL));
-      bodyPanel.add(Box.createHorizontalGlue());
+      bodyPanel.add(Box.createHorizontalStrut(10));
+      JSeparator midSep = new JSeparator(SwingConstants.VERTICAL);
+      midSep.setMaximumSize(new Dimension(2, Integer.MAX_VALUE));
+      bodyPanel.add(midSep);
+      bodyPanel.add(Box.createHorizontalStrut(10));
       bodyPanel.add(defPanel);
       bodyPanel.add(Box.createHorizontalGlue());
       
@@ -189,25 +226,39 @@ public class EditSetPanel extends JPanel implements ActionListener {
       // create a scrollpane for body panel
       JScrollPane bodyScroll = new JScrollPane(bodyPanel);
       bodyScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+      bodyScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+      bodyScroll.getViewport().setBackground(UIStyle.BG);
+      bodyScroll.setBorder(javax.swing.BorderFactory.createLineBorder(UIStyle.SOFT_OUTLINE));
+      bodyScroll.setAlignmentX(Component.CENTER_ALIGNMENT);
       
       ////////////////////////////////////////////// FOOTER //////////////////////////////////////////////
       
       JPanel footer = new JPanel();
       footer.setLayout(new BoxLayout(footer, BoxLayout.X_AXIS));
+      UIStyle.stylePanel(footer);
+      footer.setMaximumSize(new Dimension(Integer.MAX_VALUE, header.getPreferredSize().height));
       
       // create a button to add another
       JButton addButton = new JButton("Add Another");
       addButton.setActionCommand("add");
       addButton.addActionListener(this);
+      UIStyle.styleButton(addButton, 140, 32);
+      addButton.setFocusable(false);
+      addButton.setFocusPainted(false);
       
       // create a button to clear empty rows
       JButton clearButton = new JButton("Clear Empty");
       clearButton.setActionCommand("clear");
       clearButton.addActionListener(this);
+      UIStyle.styleButton(clearButton, 140, 32);
+      clearButton.setFocusable(false);
+      clearButton.setFocusPainted(false);
       
+      footer.add(Box.createHorizontalGlue());
       footer.add(addButton);
       footer.add(Box.createHorizontalStrut(10));
       footer.add(clearButton);
+      footer.add(Box.createHorizontalGlue());
       
       ////////////////////////////////////////////// COMPILE //////////////////////////////////////////////
       
@@ -240,16 +291,18 @@ public class EditSetPanel extends JPanel implements ActionListener {
     */
    private void addPairData(String key, String definition) {
       // create new JTextAreas for the key and value
-      JTextArea keyArea = new JTextArea(10, 20);
-      keyArea.setMaximumSize(keyArea.getPreferredSize());
+      JTextArea keyArea = new JTextArea(4, 20);
+      // let the text area grow inside its scroll pane
       keyArea.setLineWrap(true);
       keyArea.setWrapStyleWord(true);
+      keyArea.setFont(UIStyle.BODY_FONT);
       keyArea.setText(key);
       
-      JTextArea defArea = new JTextArea(10, 20);
-      defArea.setMaximumSize(defArea.getPreferredSize());
+      JTextArea defArea = new JTextArea(4, 20);
+      // let the text area grow inside its scroll pane
       defArea.setLineWrap(true);
       defArea.setWrapStyleWord(true);
+      defArea.setFont(UIStyle.BODY_FONT);
       defArea.setText(definition);
       
       // add these areas to the lists
@@ -270,6 +323,8 @@ public class EditSetPanel extends JPanel implements ActionListener {
       keyLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
       JLabel defLabel = new JLabel("DEFINITION");
       defLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+      UIStyle.styleLabel(keyLabel);
+      UIStyle.styleLabel(defLabel);
       keyPanel.add(keyLabel);
       defPanel.add(defLabel);
       
@@ -281,6 +336,16 @@ public class EditSetPanel extends JPanel implements ActionListener {
       for (int i = 0; i < keysList.size(); i++) {
          addPairComponents(keysList.get(i), definitionsList.get(i), i);
       }
+      
+      // lock in the column widths while keeping the computed heights for scrolling
+      int colW = keyPanel.getMinimumSize().width;
+      Dimension keySize = keyPanel.getLayout().preferredLayoutSize(keyPanel);
+      Dimension defSize = defPanel.getLayout().preferredLayoutSize(defPanel);
+      if (colW <= 0) {
+         colW = keySize.width;
+      }
+      keyPanel.setPreferredSize(new Dimension(colW, keySize.height));
+      defPanel.setPreferredSize(new Dimension(colW, defSize.height));
       
       // revalidate/repaint the panels.
       keyPanel.revalidate();
@@ -309,9 +374,21 @@ public class EditSetPanel extends JPanel implements ActionListener {
       // because JTextAreas do not allow scrolling by default, we have to manually override it. Yay.
       JScrollPane keySP = new JScrollPane(keyArea);
       JScrollPane defSP = new JScrollPane(defArea);
+      keySP.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+      defSP.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+      keySP.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+      defSP.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
       
-      keySP.setMaximumSize(keySP.getPreferredSize());
-      defSP.setMaximumSize(defSP.getPreferredSize());
+      // give each row a consistent height so rows don't collapse
+      Dimension rowSize = new Dimension(280, 90);
+      keySP.setPreferredSize(rowSize);
+      defSP.setPreferredSize(rowSize);
+      keySP.setMinimumSize(rowSize);
+      defSP.setMinimumSize(rowSize);
+      keySP.setMaximumSize(rowSize);
+      defSP.setMaximumSize(rowSize);
+      keySP.getViewport().setBackground(UIStyle.CARD_BG);
+      defSP.getViewport().setBackground(UIStyle.CARD_BG);
       
       // padding
       keyPanel.add(Box.createVerticalStrut(5), position);
@@ -459,6 +536,7 @@ public class EditSetPanel extends JPanel implements ActionListener {
       }
       else if (message.equals("save")) {
          this.saveFile();
+         javax.swing.JOptionPane.showMessageDialog(this, "Changes Saved!");
       }
       else if (message.equals("close")) {
          // TO DO: make panel to do are you sure?

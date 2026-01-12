@@ -75,6 +75,7 @@ public class MatchPanel extends JPanel implements ActionListener {
       // save the name so we can return to Learn mode
       this.setName = setName;
       this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+      UIStyle.stylePanel(this);
       
       // load the set data from file
       // SetRegistry reads the .txt file and splits each line into key/definition
@@ -88,6 +89,7 @@ public class MatchPanel extends JPanel implements ActionListener {
       
       // title for this set
       titleLabel = new JLabel("Match: " + setName);
+      UIStyle.styleTitle(titleLabel);
       titleLabel.setAlignmentX(CENTER_ALIGNMENT);
       this.add(titleLabel);
       
@@ -96,18 +98,20 @@ public class MatchPanel extends JPanel implements ActionListener {
       if (keys.size() == 0) {
          // empty set message and back button
          // no match game makes sense if the set has no cards
-         JLabel emptyLabel = new JLabel("This set is empty.");
-         emptyLabel.setAlignmentX(CENTER_ALIGNMENT);
-         this.add(emptyLabel);
+        JLabel emptyLabel = new JLabel("This set is empty.");
+         UIStyle.styleLabel(emptyLabel);
+        emptyLabel.setAlignmentX(CENTER_ALIGNMENT);
+        this.add(emptyLabel);
          this.add(Box.createVerticalStrut(10));
          
-         JButton backButton = new JButton("Back");
-         backButton.setActionCommand("back");
-         backButton.addActionListener(this);
-         backButton.setAlignmentX(CENTER_ALIGNMENT);
-         backButton.setFocusable(false);
-         backButton.setFocusPainted(false);
-         this.add(backButton);
+        JButton backButton = new JButton("Back");
+        backButton.setActionCommand("back");
+        backButton.addActionListener(this);
+        backButton.setAlignmentX(CENTER_ALIGNMENT);
+        backButton.setFocusable(false);
+        backButton.setFocusPainted(false);
+         UIStyle.styleButton(backButton, 120, 34);
+        this.add(backButton);
          
          this.setVisible(true);
          return;
@@ -116,6 +120,7 @@ public class MatchPanel extends JPanel implements ActionListener {
       // instruction label for the user
       // this explains what a "match" is for new users
       instructionLabel = new JLabel("Match each key with its definition.");
+      UIStyle.styleLabel(instructionLabel);
       instructionLabel.setAlignmentX(CENTER_ALIGNMENT);
       this.add(instructionLabel);
       
@@ -125,18 +130,21 @@ public class MatchPanel extends JPanel implements ActionListener {
       // box layout keeps key/def columns centered
       JPanel bodyPanel = new JPanel();
       bodyPanel.setLayout(new BoxLayout(bodyPanel, BoxLayout.X_AXIS));
+      UIStyle.stylePanel(bodyPanel);
       
       // key column on the left
       keyPanel = new JPanel();
       // 4 rows and 2 columns for 8 keys
       keyPanel.setLayout(new GridLayout(4, 2, 5, 5));
       keyPanel.setMaximumSize(new Dimension(350, 260));
+      UIStyle.styleCardPanel(keyPanel);
       
       // definition column on the right
       defPanel = new JPanel();
       // 4 rows and 2 columns for 8 definitions
       defPanel.setLayout(new GridLayout(4, 2, 5, 5));
       defPanel.setMaximumSize(new Dimension(350, 260));
+      UIStyle.styleCardPanel(defPanel);
       
       bodyPanel.add(Box.createHorizontalGlue());
       bodyPanel.add(keyPanel);
@@ -150,6 +158,7 @@ public class MatchPanel extends JPanel implements ActionListener {
       
       // feedback label shows correct/incorrect
       feedbackLabel = new JLabel(" ");
+      UIStyle.styleLabel(feedbackLabel);
       feedbackLabel.setAlignmentX(CENTER_ALIGNMENT);
       this.add(feedbackLabel);
       
@@ -163,6 +172,7 @@ public class MatchPanel extends JPanel implements ActionListener {
       backButton.setAlignmentX(CENTER_ALIGNMENT);
       backButton.setFocusable(false);
       backButton.setFocusPainted(false);
+      UIStyle.styleButton(backButton, 120, 34);
       this.add(backButton);
       
       // initialize selection state
@@ -233,6 +243,7 @@ public class MatchPanel extends JPanel implements ActionListener {
          keyButton.setPreferredSize(new Dimension(160, 70));
          keyButton.setMinimumSize(new Dimension(160, 70));
          keyButton.setMaximumSize(new Dimension(160, 70));
+         UIStyle.styleButton(keyButton);
          
          // text area inside the button so text can wrap without resizing the button
          JTextArea keyText = new JTextArea(keys.get(pairIndex));
@@ -242,6 +253,8 @@ public class MatchPanel extends JPanel implements ActionListener {
          keyText.setFocusable(false);
          keyText.setOpaque(false);
          keyText.setBackground(keyButton.getBackground());
+         keyText.setForeground(UIStyle.ACCENT_TEXT);
+         keyText.setFont(UIStyle.BODY_FONT);
          keyText.setAlignmentX(CENTER_ALIGNMENT);
          keyText.setAlignmentY(CENTER_ALIGNMENT);
          // forward clicks on the text area to the button
@@ -278,6 +291,7 @@ public class MatchPanel extends JPanel implements ActionListener {
          defButton.setPreferredSize(new Dimension(160, 70));
          defButton.setMinimumSize(new Dimension(160, 70));
          defButton.setMaximumSize(new Dimension(160, 70));
+         UIStyle.styleButton(defButton);
          
          // text area inside the button so text can wrap without resizing the button
          JTextArea defText = new JTextArea(defs.get(pairIndex));
@@ -287,6 +301,8 @@ public class MatchPanel extends JPanel implements ActionListener {
          defText.setFocusable(false);
          defText.setOpaque(false);
          defText.setBackground(defButton.getBackground());
+         defText.setForeground(UIStyle.ACCENT_TEXT);
+         defText.setFont(UIStyle.BODY_FONT);
          defText.setAlignmentX(CENTER_ALIGNMENT);
          defText.setAlignmentY(CENTER_ALIGNMENT);
          // forward clicks on the text area to the button

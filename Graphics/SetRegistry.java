@@ -80,6 +80,10 @@ public class SetRegistry {
       // create the File object
       setFile = new File(filePath);
       
+      System.out.println("Trying to load: " + setFile.getAbsolutePath());
+      System.out.println("Exists? " + setFile.exists());
+      System.out.println("Is file? " + setFile.isFile());
+      
       // create the ArrayList objects
       keys = new ArrayList<String>();
       defs = new ArrayList<String>();

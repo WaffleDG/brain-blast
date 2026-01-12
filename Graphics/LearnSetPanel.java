@@ -62,6 +62,7 @@ public class LearnSetPanel extends JPanel implements ActionListener {
       // save the name so we can open match mode later
       this.setName = setName;
       this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+      UIStyle.stylePanel(this);
       
       // load the set data from file
       SetRegistry registry = new SetRegistry();
@@ -74,6 +75,7 @@ public class LearnSetPanel extends JPanel implements ActionListener {
       
       // title for this set
       JLabel title = new JLabel("Learn: " + setName);
+      UIStyle.styleTitle(title);
       title.setAlignmentX(CENTER_ALIGNMENT);
       this.add(title);
       
@@ -82,6 +84,7 @@ public class LearnSetPanel extends JPanel implements ActionListener {
       if (keys.size() == 0) {
          // empty set message and back button
          JLabel emptyLabel = new JLabel("This set is empty.");
+         UIStyle.styleLabel(emptyLabel);
          emptyLabel.setAlignmentX(CENTER_ALIGNMENT);
          this.add(emptyLabel);
          this.add(Box.createVerticalStrut(10));
@@ -90,6 +93,7 @@ public class LearnSetPanel extends JPanel implements ActionListener {
          backButton.setActionCommand("back");
          backButton.addActionListener(this);
          backButton.setAlignmentX(CENTER_ALIGNMENT);
+         UIStyle.styleButton(backButton, 120, 34);
          backButton.setFocusable(false);
          backButton.setFocusPainted(false);
          this.add(backButton);
@@ -99,6 +103,7 @@ public class LearnSetPanel extends JPanel implements ActionListener {
       }
       
       progressLabel = new JLabel();
+      UIStyle.styleLabel(progressLabel);
       progressLabel.setAlignmentX(CENTER_ALIGNMENT);
       this.add(progressLabel);
       
@@ -107,6 +112,7 @@ public class LearnSetPanel extends JPanel implements ActionListener {
       cardPanel = new JPanel();
       cardPanel.setMaximumSize(new Dimension(MainFrame.WIDTH - 40, 200));
       cardPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+      UIStyle.styleCardPanel(cardPanel);
       // clicking the card area flips the card
       cardPanel.addMouseListener(new MouseAdapter() {
          @Override
@@ -122,6 +128,7 @@ public class LearnSetPanel extends JPanel implements ActionListener {
       
       JPanel buttonPanel = new JPanel();
       buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
+      UIStyle.stylePanel(buttonPanel);
       
       // navigation buttons
       JButton prevButton = new JButton("Prev");
@@ -129,12 +136,14 @@ public class LearnSetPanel extends JPanel implements ActionListener {
       prevButton.addActionListener(this);
       prevButton.setFocusable(false);
       prevButton.setFocusPainted(false);
+      UIStyle.styleButton(prevButton, 90, 32);
       
       JButton nextButton = new JButton("Next");
       nextButton.setActionCommand("next");
       nextButton.addActionListener(this);
       nextButton.setFocusable(false);
       nextButton.setFocusPainted(false);
+      UIStyle.styleButton(nextButton, 90, 32);
       
       // shuffle button
       JButton shuffleButton = new JButton("Shuffle");
@@ -142,6 +151,7 @@ public class LearnSetPanel extends JPanel implements ActionListener {
       shuffleButton.addActionListener(this);
       shuffleButton.setFocusable(false);
       shuffleButton.setFocusPainted(false);
+      UIStyle.styleButton(shuffleButton, 110, 32);
       
       // match button
       JButton matchButton = new JButton("Match");
@@ -149,6 +159,7 @@ public class LearnSetPanel extends JPanel implements ActionListener {
       matchButton.addActionListener(this);
       matchButton.setFocusable(false);
       matchButton.setFocusPainted(false);
+      UIStyle.styleButton(matchButton, 100, 32);
       
       // back to catalog
       JButton backButton = new JButton("Back");
@@ -156,6 +167,7 @@ public class LearnSetPanel extends JPanel implements ActionListener {
       backButton.addActionListener(this);
       backButton.setFocusable(false);
       backButton.setFocusPainted(false);
+      UIStyle.styleButton(backButton, 90, 32);
       
       // add buttons with spacing (Back, Shuffle, Match, Prev, Next)
       buttonPanel.add(backButton);

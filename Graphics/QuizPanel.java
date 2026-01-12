@@ -2,6 +2,8 @@ import javax.swing.JPanel;
 import javax.swing.JLabel;
 import javax.swing.JButton;
 import javax.swing.JTextField;
+import javax.swing.JTextArea;
+import javax.swing.JScrollPane;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.InputMap;
@@ -51,8 +53,8 @@ public class QuizPanel extends JPanel implements ActionListener {
    private JLabel progressLabel;
    /** Private label for the instruction */
    private JLabel instructionLabel;
-   /** Private label for the question */
-   private JLabel questionLabel;
+   /** Private text area for the question */
+   private JTextArea questionArea;
    /** Private label for feedback */
    private JLabel feedbackLabel;
    
@@ -104,16 +106,19 @@ public class QuizPanel extends JPanel implements ActionListener {
    public QuizPanel(String setName) {
       // use a vertical layout so each section stacks top-to-bottom
       this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+      UIStyle.stylePanel(this);
       
       // top bar with a back button in the corner
       JPanel topBar = new JPanel();
       topBar.setLayout(new BoxLayout(topBar, BoxLayout.X_AXIS));
+      UIStyle.stylePanel(topBar);
       
       JButton topBackButton = new JButton("Back");
       topBackButton.setActionCommand("back");
       topBackButton.addActionListener(this);
       topBackButton.setFocusable(false);
       topBackButton.setFocusPainted(false);
+      UIStyle.styleButton(topBackButton, 90, 32);
       
       topBar.add(topBackButton);
       topBar.add(Box.createHorizontalGlue());
@@ -133,6 +138,7 @@ public class QuizPanel extends JPanel implements ActionListener {
       // title for this set
       // keeping the set name visible helps with context
       titleLabel = new JLabel("Quiz: " + setName);
+      UIStyle.styleTitle(titleLabel);
       titleLabel.setAlignmentX(CENTER_ALIGNMENT);
       this.add(titleLabel);
       
@@ -142,6 +148,7 @@ public class QuizPanel extends JPanel implements ActionListener {
          // empty set message and back button
          // do not try to quiz if there are no cards
          JLabel emptyLabel = new JLabel("This set is empty.");
+         UIStyle.styleLabel(emptyLabel);
          emptyLabel.setAlignmentX(CENTER_ALIGNMENT);
          this.add(emptyLabel);
          this.add(Box.createVerticalStrut(10));
@@ -153,6 +160,7 @@ public class QuizPanel extends JPanel implements ActionListener {
          emptyBackButton.setAlignmentX(CENTER_ALIGNMENT);
          emptyBackButton.setFocusable(false);
          emptyBackButton.setFocusPainted(false);
+         UIStyle.styleButton(emptyBackButton, 120, 34);
          this.add(emptyBackButton);
          
          this.setVisible(true);
@@ -160,6 +168,7 @@ public class QuizPanel extends JPanel implements ActionListener {
       }
       
       progressLabel = new JLabel();
+      UIStyle.styleLabel(progressLabel);
       progressLabel.setAlignmentX(CENTER_ALIGNMENT);
       this.add(progressLabel);
       
@@ -167,15 +176,27 @@ public class QuizPanel extends JPanel implements ActionListener {
       
       // instruction label frames the question
       instructionLabel = new JLabel(" ");
+      UIStyle.styleLabel(instructionLabel);
       instructionLabel.setAlignmentX(CENTER_ALIGNMENT);
       this.add(instructionLabel);
       
       this.add(Box.createVerticalStrut(5));
       
-      // question label is where the prompt will go
-      questionLabel = new JLabel();
-      questionLabel.setAlignmentX(CENTER_ALIGNMENT);
-      this.add(questionLabel);
+      // question area is where the prompt will go
+      questionArea = new JTextArea();
+      questionArea.setLineWrap(true);
+      questionArea.setWrapStyleWord(true);
+      questionArea.setEditable(false);
+      questionArea.setOpaque(false);
+      questionArea.setFont(UIStyle.BODY_FONT);
+      
+      JScrollPane questionScroll = new JScrollPane(questionArea);
+      questionScroll.setBorder(null);
+      questionScroll.setOpaque(false);
+      questionScroll.getViewport().setOpaque(false);
+      questionScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+      questionScroll.setMaximumSize(new Dimension(MainFrame.WIDTH - 60, 80));
+      this.add(questionScroll);
       
       this.add(Box.createVerticalStrut(10));
       
@@ -184,10 +205,13 @@ public class QuizPanel extends JPanel implements ActionListener {
       choicePanel = new JPanel();
       choicePanel.setLayout(new GridLayout(2, 2, 10, 10));
       choicePanel.setMaximumSize(new Dimension(MainFrame.WIDTH - 40, 140));
+      UIStyle.styleCardPanel(choicePanel);
       choiceButtons = new ArrayList<JButton>();
       for (int i = 0; i < 4; i++) {
          // create the button and wire it to the action listener
          JButton choiceButton = new JButton("Choice");
+         // apply shared button style
+         UIStyle.styleButton(choiceButton);
          // larger text to make answers easier to read and click
          choiceButton.setFont(new Font(choiceButton.getFont().getName(), Font.BOLD, 18));
          choiceButton.setActionCommand("choice:" + i);
@@ -212,10 +236,12 @@ public class QuizPanel extends JPanel implements ActionListener {
       // a simple row layout with a field and a submit button
       writtenPanel = new JPanel();
       writtenPanel.setLayout(new BoxLayout(writtenPanel, BoxLayout.X_AXIS));
+      UIStyle.stylePanel(writtenPanel);
       
       // text field for the user's written answer
       answerField = new JTextField(20);
       answerField.setMaximumSize(answerField.getPreferredSize());
+      answerField.setFont(UIStyle.BODY_FONT);
       answerField.setActionCommand("submit");
       answerField.addActionListener(this);
       
@@ -225,6 +251,7 @@ public class QuizPanel extends JPanel implements ActionListener {
       submitButton.addActionListener(this);
       submitButton.setFocusable(false);
       submitButton.setFocusPainted(false);
+      UIStyle.styleButton(submitButton, 100, 32);
       
       writtenPanel.add(answerField);
       writtenPanel.add(Box.createHorizontalStrut(10));
@@ -235,6 +262,7 @@ public class QuizPanel extends JPanel implements ActionListener {
       
       // feedback label shows correct/incorrect
       feedbackLabel = new JLabel(" ");
+      UIStyle.styleLabel(feedbackLabel);
       feedbackLabel.setAlignmentX(CENTER_ALIGNMENT);
       this.add(feedbackLabel);
       
@@ -243,6 +271,7 @@ public class QuizPanel extends JPanel implements ActionListener {
       // navigation panel for next (back is in the top bar)
       JPanel navPanel = new JPanel();
       navPanel.setLayout(new BoxLayout(navPanel, BoxLayout.X_AXIS));
+      UIStyle.stylePanel(navPanel);
       
       // next button moves to the next question
       nextButton = new JButton("Next");
@@ -250,6 +279,7 @@ public class QuizPanel extends JPanel implements ActionListener {
       nextButton.addActionListener(this);
       nextButton.setFocusable(false);
       nextButton.setFocusPainted(false);
+      UIStyle.styleButton(nextButton, 90, 32);
       
       // push the next button to the right side of the row
       navPanel.add(Box.createHorizontalGlue());
@@ -426,11 +456,11 @@ public class QuizPanel extends JPanel implements ActionListener {
       // update the question label based on the direction
       if (currentAskKey) {
          instructionLabel.setText("Match the key to its definition.");
-         questionLabel.setText("Define: " + prompt);
+         questionArea.setText("Define: " + prompt);
       }
       else {
          instructionLabel.setText("Match the definition to its key.");
-         questionLabel.setText("Key for: " + prompt);
+         questionArea.setText("Key for: " + prompt);
       }
       
       // show progress so the user knows where they are
@@ -567,7 +597,7 @@ public class QuizPanel extends JPanel implements ActionListener {
     */
    private void showResults() {
       // show the final score and hide input controls
-      questionLabel.setText("Quiz complete!");
+      questionArea.setText("Quiz complete!");
       instructionLabel.setText(" ");
       progressLabel.setText("Score: " + score + " / " + totalQuestions);
       feedbackLabel.setText(" ");

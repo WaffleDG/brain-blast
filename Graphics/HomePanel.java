@@ -64,6 +64,9 @@ public class HomePanel extends JPanel implements ActionListener {
       createSet.setMaximumSize(createSet.getPreferredSize());
       createSet.setAlignmentX(Component.CENTER_ALIGNMENT);
       createSet.setActionCommand("edit");
+      UIStyle.styleButton(createSet, 200, 50);
+      createSet.setFocusable(false);
+      createSet.setFocusPainted(false);
       this.add(createSet);
       
       // adding some space between buttons
@@ -75,6 +78,9 @@ public class HomePanel extends JPanel implements ActionListener {
       viewSets.setMaximumSize(createSet.getPreferredSize());
       viewSets.setAlignmentX(Component.CENTER_ALIGNMENT);
       viewSets.setActionCommand("catalog");
+      UIStyle.styleButton(viewSets, 200, 50);
+      viewSets.setFocusable(false);
+      viewSets.setFocusPainted(false);
       this.add(viewSets);
       
       // adding action listeners for the buttons

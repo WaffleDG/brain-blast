@@ -1,5 +1,6 @@
 import javax.swing.JPanel;
-import javax.swing.JLabel;
+import javax.swing.JTextArea;
+import javax.swing.JScrollPane;
 import javax.swing.BoxLayout;
 import javax.swing.BorderFactory;
 import java.awt.Dimension;
@@ -26,7 +27,7 @@ import java.awt.event.MouseEvent;
  */
 public class Flashcard extends JPanel implements ActionListener {
    /** Private variable to save the key as a JPanel */
-   private JLabel cardLabel;
+   private JTextArea cardText;
    /** Private variable for the key text */
    private String keyText;
    /** Private variable for the definition text */
@@ -43,11 +44,24 @@ public class Flashcard extends JPanel implements ActionListener {
       
       // simple vertical layout
       this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+      UIStyle.styleCardPanel(this);
       
-      // create and add the label
-      cardLabel = new JLabel(keyText);
-      cardLabel.setAlignmentX(CENTER_ALIGNMENT);
-      this.add(cardLabel);
+      // create and add a text area so long text can wrap
+      cardText = new JTextArea(keyText);
+      cardText.setLineWrap(true);
+      cardText.setWrapStyleWord(true);
+      cardText.setEditable(false);
+      cardText.setOpaque(false);
+      cardText.setFont(UIStyle.BODY_FONT);
+      
+      // put the text area in a scroll pane for overflow
+      JScrollPane textScroll = new JScrollPane(cardText);
+      textScroll.setBorder(null);
+      textScroll.setOpaque(false);
+      textScroll.getViewport().setOpaque(false);
+      textScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+      
+      this.add(textScroll);
       
       // give the card a visible box so it is easy to click
       this.setBorder(BorderFactory.createEtchedBorder());
@@ -68,10 +82,10 @@ public class Flashcard extends JPanel implements ActionListener {
    public void flip() {
       showingKey = !showingKey;
       if (showingKey) {
-         cardLabel.setText(keyText);
+         cardText.setText(keyText);
       }
       else {
-         cardLabel.setText(defText);
+         cardText.setText(defText);
       }
    }
    
