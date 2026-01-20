@@ -6,6 +6,8 @@ import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.BorderFactory;
+import javax.swing.JSeparator;
 import javax.swing.InputMap;
 import javax.swing.ActionMap;
 import javax.swing.KeyStroke;
@@ -99,6 +101,8 @@ public class QuizPanel extends JPanel implements ActionListener {
    private JCheckBox mcqCheck;
    /** Private checkbox for free response */
    private JCheckBox frqCheck;
+   /** Private flag for quiz finished state */
+   private boolean quizFinished;
    
    /**
     * Constructor for the quiz screen.
@@ -118,8 +122,10 @@ public class QuizPanel extends JPanel implements ActionListener {
       topBackButton.addActionListener(this);
       topBackButton.setFocusable(false);
       topBackButton.setFocusPainted(false);
-      UIStyle.styleButton(topBackButton, 90, 32);
+      UIStyle.styleButton(topBackButton, 110, 40);
+      topBackButton.setFont(UIStyle.BUTTON_FONT.deriveFont(Font.BOLD, 16f));
       
+      // align the back button to the left
       topBar.add(topBackButton);
       topBar.add(Box.createHorizontalGlue());
       topBar.setMaximumSize(new Dimension(Integer.MAX_VALUE, topBar.getPreferredSize().height));
@@ -139,9 +145,12 @@ public class QuizPanel extends JPanel implements ActionListener {
       // keeping the set name visible helps with context
       titleLabel = new JLabel("Quiz: " + setName);
       UIStyle.styleTitle(titleLabel);
+      titleLabel.setFont(UIStyle.TITLE_FONT.deriveFont(Font.BOLD, 24f));
       titleLabel.setAlignmentX(CENTER_ALIGNMENT);
       this.add(titleLabel);
       
+      this.add(Box.createVerticalStrut(6));
+      this.add(buildSeparator());
       this.add(Box.createVerticalStrut(10));
       
       if (keys.size() == 0) {
@@ -163,24 +172,42 @@ public class QuizPanel extends JPanel implements ActionListener {
          UIStyle.styleButton(emptyBackButton, 120, 34);
          this.add(emptyBackButton);
          
+         // show the panel even with no questions
          this.setVisible(true);
          return;
       }
       
+      // progress label shows question index
       progressLabel = new JLabel();
       UIStyle.styleLabel(progressLabel);
+      progressLabel.setFont(UIStyle.BODY_FONT.deriveFont(Font.BOLD, 18f));
+      progressLabel.setForeground(UIStyle.ACCENT);
       progressLabel.setAlignmentX(CENTER_ALIGNMENT);
       this.add(progressLabel);
       
-      this.add(Box.createVerticalStrut(10));
+      this.add(Box.createVerticalStrut(8));
+      
+      JPanel questionCard = new JPanel();
+      questionCard.setLayout(new BoxLayout(questionCard, BoxLayout.Y_AXIS));
+      questionCard.setBackground(Color.WHITE);
+      questionCard.setOpaque(true);
+      questionCard.setBorder(BorderFactory.createCompoundBorder(
+         BorderFactory.createLineBorder(UIStyle.SOFT_OUTLINE, 2, true),
+         BorderFactory.createEmptyBorder(14, 18, 14, 18)
+      ));
+      questionCard.setAlignmentX(CENTER_ALIGNMENT);
+      Dimension questionCardSize = new Dimension(MainFrame.WIDTH - 120, 240);
+      questionCard.setMaximumSize(questionCardSize);
+      questionCard.setPreferredSize(questionCardSize);
       
       // instruction label frames the question
       instructionLabel = new JLabel(" ");
       UIStyle.styleLabel(instructionLabel);
+      instructionLabel.setFont(UIStyle.BODY_FONT.deriveFont(Font.BOLD, 18f));
+      instructionLabel.setForeground(UIStyle.ACCENT);
       instructionLabel.setAlignmentX(CENTER_ALIGNMENT);
-      this.add(instructionLabel);
-      
-      this.add(Box.createVerticalStrut(5));
+      questionCard.add(instructionLabel);
+      questionCard.add(Box.createVerticalStrut(8));
       
       // question area is where the prompt will go
       questionArea = new JTextArea();
@@ -188,24 +215,39 @@ public class QuizPanel extends JPanel implements ActionListener {
       questionArea.setWrapStyleWord(true);
       questionArea.setEditable(false);
       questionArea.setOpaque(false);
-      questionArea.setFont(UIStyle.BODY_FONT);
+      questionArea.setFont(UIStyle.BODY_FONT.deriveFont(18f));
       
+      // put the question in a scroll pane for long text
       JScrollPane questionScroll = new JScrollPane(questionArea);
       questionScroll.setBorder(null);
       questionScroll.setOpaque(false);
       questionScroll.getViewport().setOpaque(false);
       questionScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-      questionScroll.setMaximumSize(new Dimension(MainFrame.WIDTH - 60, 80));
-      this.add(questionScroll);
+      Dimension questionSize = new Dimension(MainFrame.WIDTH - 160, 160);
+      questionScroll.setPreferredSize(questionSize);
+      questionScroll.setMaximumSize(questionSize);
+      questionCard.add(questionScroll);
       
-      this.add(Box.createVerticalStrut(10));
+      this.add(questionCard);
+      
+      this.add(Box.createVerticalStrut(8));
+      this.add(buildSeparator());
+      this.add(Box.createVerticalStrut(12));
       
       // multiple choice panel
       // grid layout keeps the buttons in a clean 2x2 arrangement
       choicePanel = new JPanel();
-      choicePanel.setLayout(new GridLayout(2, 2, 10, 10));
-      choicePanel.setMaximumSize(new Dimension(MainFrame.WIDTH - 40, 140));
+      choicePanel.setLayout(new GridLayout(2, 2, 12, 12));
+      Dimension choicePanelSize = new Dimension(MainFrame.WIDTH - 120, 240);
+      choicePanel.setMaximumSize(choicePanelSize);
+      choicePanel.setPreferredSize(choicePanelSize);
+      choicePanel.setAlignmentX(CENTER_ALIGNMENT);
       UIStyle.styleCardPanel(choicePanel);
+      choicePanel.setBackground(Color.WHITE);
+      choicePanel.setBorder(BorderFactory.createCompoundBorder(
+         BorderFactory.createLineBorder(UIStyle.SOFT_OUTLINE, 2, true),
+         BorderFactory.createEmptyBorder(12, 12, 12, 12)
+      ));
       choiceButtons = new ArrayList<JButton>();
       for (int i = 0; i < 4; i++) {
          // create the button and wire it to the action listener
@@ -213,7 +255,7 @@ public class QuizPanel extends JPanel implements ActionListener {
          // apply shared button style
          UIStyle.styleButton(choiceButton);
          // larger text to make answers easier to read and click
-         choiceButton.setFont(new Font(choiceButton.getFont().getName(), Font.BOLD, 18));
+         choiceButton.setFont(new Font(choiceButton.getFont().getName(), Font.BOLD, 20));
          choiceButton.setActionCommand("choice:" + i);
          choiceButton.addActionListener(this);
          choiceButton.setFocusable(false);
@@ -237,11 +279,31 @@ public class QuizPanel extends JPanel implements ActionListener {
       writtenPanel = new JPanel();
       writtenPanel.setLayout(new BoxLayout(writtenPanel, BoxLayout.X_AXIS));
       UIStyle.stylePanel(writtenPanel);
+      writtenPanel.setBackground(Color.WHITE);
+      writtenPanel.setOpaque(true);
+      writtenPanel.setBorder(BorderFactory.createCompoundBorder(
+         BorderFactory.createLineBorder(UIStyle.SOFT_OUTLINE, 2, true),
+         BorderFactory.createEmptyBorder(10, 12, 10, 12)
+      ));
+      Dimension writtenPanelSize = new Dimension(MainFrame.WIDTH - 200, 72);
+      writtenPanel.setMaximumSize(writtenPanelSize);
+      writtenPanel.setPreferredSize(writtenPanelSize);
+      writtenPanel.setAlignmentX(CENTER_ALIGNMENT);
       
       // text field for the user's written answer
-      answerField = new JTextField(20);
-      answerField.setMaximumSize(answerField.getPreferredSize());
-      answerField.setFont(UIStyle.BODY_FONT);
+      answerField = new JTextField(24);
+      answerField.setPreferredSize(new Dimension(360, 36));
+      answerField.setMaximumSize(new Dimension(420, 36));
+      answerField.setFont(UIStyle.BODY_FONT.deriveFont(18f));
+      answerField.setBackground(UIStyle.ACCENT);
+      answerField.setForeground(UIStyle.ACCENT_TEXT);
+      answerField.setCaretColor(UIStyle.ACCENT_TEXT);
+      answerField.setSelectionColor(UIStyle.SOFT_OUTLINE);
+      answerField.setSelectedTextColor(UIStyle.ACCENT);
+      answerField.setBorder(BorderFactory.createCompoundBorder(
+         BorderFactory.createLineBorder(UIStyle.BUTTON_OUTLINE, 2),
+         BorderFactory.createEmptyBorder(4, 8, 4, 8)
+      ));
       answerField.setActionCommand("submit");
       answerField.addActionListener(this);
       
@@ -251,27 +313,32 @@ public class QuizPanel extends JPanel implements ActionListener {
       submitButton.addActionListener(this);
       submitButton.setFocusable(false);
       submitButton.setFocusPainted(false);
-      UIStyle.styleButton(submitButton, 100, 32);
+      UIStyle.styleButton(submitButton, 120, 40);
+      submitButton.setFont(UIStyle.BUTTON_FONT.deriveFont(Font.BOLD, 16f));
       
+      writtenPanel.add(Box.createHorizontalGlue());
       writtenPanel.add(answerField);
-      writtenPanel.add(Box.createHorizontalStrut(10));
+      writtenPanel.add(Box.createHorizontalStrut(12));
       writtenPanel.add(submitButton);
+      writtenPanel.add(Box.createHorizontalGlue());
       this.add(writtenPanel);
       
-      this.add(Box.createVerticalStrut(10));
+      this.add(Box.createVerticalStrut(12));
       
       // feedback label shows correct/incorrect
       feedbackLabel = new JLabel(" ");
       UIStyle.styleLabel(feedbackLabel);
+      feedbackLabel.setFont(UIStyle.BODY_FONT.deriveFont(Font.BOLD, 18f));
       feedbackLabel.setAlignmentX(CENTER_ALIGNMENT);
       this.add(feedbackLabel);
       
-      this.add(Box.createVerticalStrut(10));
+      this.add(Box.createVerticalStrut(12));
       
       // navigation panel for next (back is in the top bar)
       JPanel navPanel = new JPanel();
       navPanel.setLayout(new BoxLayout(navPanel, BoxLayout.X_AXIS));
       UIStyle.stylePanel(navPanel);
+      navPanel.setAlignmentX(CENTER_ALIGNMENT);
       
       // next button moves to the next question
       nextButton = new JButton("Next");
@@ -279,11 +346,13 @@ public class QuizPanel extends JPanel implements ActionListener {
       nextButton.addActionListener(this);
       nextButton.setFocusable(false);
       nextButton.setFocusPainted(false);
-      UIStyle.styleButton(nextButton, 90, 32);
+      UIStyle.styleButton(nextButton, 120, 40);
+      nextButton.setFont(UIStyle.BUTTON_FONT.deriveFont(Font.BOLD, 16f));
       
-      // push the next button to the right side of the row
+      // center the next button in the row
       navPanel.add(Box.createHorizontalGlue());
       navPanel.add(nextButton);
+      navPanel.add(Box.createHorizontalGlue());
       this.add(navPanel);
       
       // create a question order and start at the beginning
@@ -293,6 +362,7 @@ public class QuizPanel extends JPanel implements ActionListener {
       totalQuestions = order.size();
       allowMultipleChoice = true;
       allowWritten = true;
+      quizFinished = false;
       
       // ask the user how they want the quiz to run
       // this uses a small panel with a slider and checkboxes
@@ -301,6 +371,7 @@ public class QuizPanel extends JPanel implements ActionListener {
       loadQuestion();
       setupKeyBinds();
       
+      // show the panel once ready
       this.setVisible(true);
    }
    
@@ -340,6 +411,7 @@ public class QuizPanel extends JPanel implements ActionListener {
       JLabel sliderLabel = new JLabel("Number of questions: ");
       JLabel sliderValue = new JLabel(String.valueOf(questionSlider.getValue()));
       
+      // update the displayed value as the slider moves
       questionSlider.addChangeListener(e -> {
          sliderValue.setText(String.valueOf(questionSlider.getValue()));
       });
@@ -368,12 +440,11 @@ public class QuizPanel extends JPanel implements ActionListener {
       setupPanel.add(frqCheck);
       
       // show the dialog and wait for input
-      int result = JOptionPane.showConfirmDialog(
+      int result = UIStyle.showConfirmDialog(
          this,
          setupPanel,
          "Quiz Setup",
-         JOptionPane.OK_CANCEL_OPTION,
-         JOptionPane.PLAIN_MESSAGE
+         JOptionPane.OK_CANCEL_OPTION
       );
       
       // if the user cancels, keep defaults (full length, both types)
@@ -593,6 +664,16 @@ public class QuizPanel extends JPanel implements ActionListener {
    }
    
    /**
+    * buildSeparator creates a thin divider for the layout.
+    */
+   private JSeparator buildSeparator() {
+      JSeparator separator = new JSeparator();
+      separator.setMaximumSize(new Dimension(MainFrame.WIDTH - 160, 2));
+      separator.setForeground(UIStyle.SOFT_OUTLINE);
+      return separator;
+   }
+   
+   /**
     * showResults displays the final score and hides quiz controls.
     */
    private void showResults() {
@@ -604,7 +685,10 @@ public class QuizPanel extends JPanel implements ActionListener {
       
       choicePanel.setVisible(false);
       writtenPanel.setVisible(false);
-      nextButton.setEnabled(false);
+      // switch the next button to act as a back button
+      quizFinished = true;
+      nextButton.setText("Back");
+      nextButton.setEnabled(true);
    }
    
    /**
@@ -615,12 +699,17 @@ public class QuizPanel extends JPanel implements ActionListener {
       InputMap inputMap = this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
       ActionMap actionMap = this.getActionMap();
       
+      // treat ENTER as "Next" for quick navigation
       inputMap.put(KeyStroke.getKeyStroke("ENTER"), "next");
       
       actionMap.put("next", new AbstractAction() {
          @Override
          public void actionPerformed(ActionEvent e) {
             // only move forward if Next is enabled
+            if (quizFinished) {
+               MainFrame.switchScreen("catalog");
+               return;
+            }
             if (nextButton.isEnabled()) {
                currentIndex++;
                loadQuestion();
@@ -636,8 +725,13 @@ public class QuizPanel extends JPanel implements ActionListener {
       
       if (message.equals("next")) {
          // move to the next question
-         currentIndex++;
-         loadQuestion();
+         if (quizFinished) {
+            MainFrame.switchScreen("catalog");
+         }
+         else {
+            currentIndex++;
+            loadQuestion();
+         }
       }
       else if (message.equals("back")) {
          // return to the catalog view
@@ -672,6 +766,7 @@ public class QuizPanel extends JPanel implements ActionListener {
             choiceButtons.get(correctChoiceIndex).setBackground(Color.GREEN);
          }
          
+         // show feedback and enable Next
          handleAnswer(response);
       }
    }

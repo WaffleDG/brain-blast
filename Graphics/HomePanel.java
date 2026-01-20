@@ -10,7 +10,9 @@ import java.awt.event.ActionListener;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -42,54 +44,55 @@ public class HomePanel extends JPanel implements ActionListener {
     * The HomePanel will be the exact same every time, featuring a background, screen, and buttons as described above.
     */
    public HomePanel() {
-      // we're going to load the assets of this image.
+      // load images needed for this screen before layout
       loadAssets();
       
-      // set the layout to be a vertical layout
+      // use a vertical box layout for easy stacking
       this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
       
       // add some vertical glue to center objects in the layout
       this.add(Box.createVerticalGlue());
       
       ///// Body of HomePanel
-      // adding the logoImage, as a smaller scaled instance
-      JLabel logoIcon = new JLabel(new ImageIcon(logoImage.getScaledInstance(320, 240, Image.SCALE_SMOOTH)));
-      // align it to center
+      // add the logo image, scaled without stretching
+      JLabel logoIcon = new JLabel(scaleIconToFit(logoImage, 420, 300));
+      // center the logo within the column
       logoIcon.setAlignmentX(Component.CENTER_ALIGNMENT);
       this.add(logoIcon);
       
-      // adding the create set button
+      // add the create set button
       JButton createSet = new JButton("Create a Set");
-      createSet.setPreferredSize(new Dimension(200, 50));
+      createSet.setPreferredSize(new Dimension(260, 60));
       createSet.setMaximumSize(createSet.getPreferredSize());
       createSet.setAlignmentX(Component.CENTER_ALIGNMENT);
       createSet.setActionCommand("edit");
-      UIStyle.styleButton(createSet, 200, 50);
+      UIStyle.styleButton(createSet, 260, 60);
       createSet.setFocusable(false);
       createSet.setFocusPainted(false);
       this.add(createSet);
       
-      // adding some space between buttons
-      this.add(Box.createRigidArea(new Dimension(200, 5)));
+      // add some space between buttons
+      this.add(Box.createRigidArea(new Dimension(200, 8)));
       
-      // adding the view sets button
+      // add the view sets button
       JButton viewSets = new JButton("View Sets");
-      viewSets.setPreferredSize(new Dimension(200, 50));
+      viewSets.setPreferredSize(new Dimension(260, 60));
       viewSets.setMaximumSize(createSet.getPreferredSize());
       viewSets.setAlignmentX(Component.CENTER_ALIGNMENT);
       viewSets.setActionCommand("catalog");
-      UIStyle.styleButton(viewSets, 200, 50);
+      UIStyle.styleButton(viewSets, 260, 60);
       viewSets.setFocusable(false);
       viewSets.setFocusPainted(false);
       this.add(viewSets);
       
-      // adding action listeners for the buttons
+      // wire up button actions to this panel
       createSet.addActionListener(this); // so this class will listen
       viewSets.addActionListener(this);
       
       // add more vertical glue to center
       this.add(Box.createVerticalGlue());
       
+      // show the panel once initialized
       this.setVisible(true);
    }
    
@@ -113,9 +116,11 @@ public class HomePanel extends JPanel implements ActionListener {
          // read the file as a bufferedImage
          logoImage = ImageIO.read(logoSource);
          
+         // assets loaded successfully
          return;
       }
       catch (IOException ioe) {
+         // log the issue so we know why the UI failed
          System.out.println("Error loading assets");
          ioe.printStackTrace();
          
@@ -129,10 +134,10 @@ public class HomePanel extends JPanel implements ActionListener {
     */
    @Override
    public void actionPerformed(ActionEvent e) {
-      // normally, other buttons which have nothing to do with activation,
-      // but since there are none, just pass it on to the MainFrame class to do it.
+      // forward the action command to the main screen manager
       System.out.println("sent: " + e.getActionCommand());
       
+      // let MainFrame switch the visible card
       MainFrame.switchScreen(e.getActionCommand());
    }
    
@@ -141,9 +146,28 @@ public class HomePanel extends JPanel implements ActionListener {
     */
    @Override
    protected void paintComponent(Graphics g) {
+      // let Swing paint the background and child components
       super.paintComponent(g); // there's other stuff that swing needs to handle.
       
-      // add the image in the top left corner with the width and height
-      g.drawImage(backgroundImage, 0, 0, MainFrame.WIDTH, MainFrame.HEIGHT, this);
+      // draw the background image scaled to the panel size
+      Graphics2D g2 = (Graphics2D) g.create();
+      g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+      g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+      g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+      g2.drawImage(backgroundImage, 0, 0, MainFrame.WIDTH, MainFrame.HEIGHT, this);
+      g2.dispose();
+   }
+   
+   /**
+    * scaleIconToFit keeps the logo's aspect ratio while fitting a box.
+    */
+   private static ImageIcon scaleIconToFit(BufferedImage image, int maxW, int maxH) {
+      int imgW = image.getWidth();
+      int imgH = image.getHeight();
+      double scale = Math.min(maxW / (double) imgW, maxH / (double) imgH);
+      int w = (int) Math.round(imgW * scale);
+      int h = (int) Math.round(imgH * scale);
+      Image scaled = image.getScaledInstance(w, h, Image.SCALE_SMOOTH);
+      return new ImageIcon(scaled);
    }
 }

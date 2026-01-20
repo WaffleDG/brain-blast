@@ -25,6 +25,7 @@ public class Paths {
     */
    public static File setFile(String setName) {
       // map the set name to a .txt file in the Sets directory
+      // this keeps file path logic in one place
       return new File(SETS_DIR + "/" + setName + ".txt");
    }
 }

@@ -1,11 +1,12 @@
 import javax.swing.JPanel;
 import javax.swing.JLabel;
-import javax.swing.JTextArea;
 import javax.swing.JButton;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import java.awt.BorderLayout;
+import javax.swing.JSeparator;
 import java.awt.GridLayout;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -14,6 +15,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collections;
+import javax.swing.Timer;
 
 /**
  * Screen for matching keys to definitions in groups of 5.
@@ -31,6 +33,15 @@ import java.util.Collections;
  * @see        JPanel
  */
 public class MatchPanel extends JPanel implements ActionListener {
+   /** Button width for match choices. */
+   private static final int MATCH_BUTTON_W = 220;
+   /** Button height for match choices. */
+   private static final int MATCH_BUTTON_H = 130;
+   /** Number of steps for incorrect fade animation. */
+   private static final int INCORRECT_FADE_STEPS = 12;
+   /** Delay in ms between incorrect fade steps. */
+   private static final int INCORRECT_FADE_DELAY_MS = 40;
+   
    /** Private list of keys */
    private ArrayList<String> keys;
    /** Private list of definitions */
@@ -52,6 +63,10 @@ public class MatchPanel extends JPanel implements ActionListener {
    private ArrayList<JButton> keyButtons;
    /** Private list of def buttons */
    private ArrayList<JButton> defButtons;
+   /** Private list of key text panes for color updates */
+   private ArrayList<CenteredWrapTextPane> keyTextPanes;
+   /** Private list of def text panes for color updates */
+   private ArrayList<CenteredWrapTextPane> defTextPanes;
    
    /** Private list of pair indices for keys */
    private ArrayList<Integer> keyPairIndex;
@@ -62,6 +77,12 @@ public class MatchPanel extends JPanel implements ActionListener {
    private int selectedKey;
    /** Private selected def button index */
    private int selectedDef;
+   /** Private flag for pending round reset */
+   private boolean waitingForNextRound;
+   /** Timer for flashing incorrect selections */
+   private Timer incorrectTimer;
+   /** Timer for delaying the next round */
+   private Timer nextRoundTimer;
    
    /** Private color for default buttons */
    private Color defaultColor;
@@ -74,6 +95,7 @@ public class MatchPanel extends JPanel implements ActionListener {
    public MatchPanel(String setName) {
       // save the name so we can return to Learn mode
       this.setName = setName;
+      // stack sections vertically
       this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
       UIStyle.stylePanel(this);
       
@@ -93,6 +115,8 @@ public class MatchPanel extends JPanel implements ActionListener {
       titleLabel.setAlignmentX(CENTER_ALIGNMENT);
       this.add(titleLabel);
       
+      this.add(Box.createVerticalStrut(6));
+      this.add(buildSeparator());
       this.add(Box.createVerticalStrut(10));
       
       if (keys.size() == 0) {
@@ -113,6 +137,7 @@ public class MatchPanel extends JPanel implements ActionListener {
          UIStyle.styleButton(backButton, 120, 34);
         this.add(backButton);
          
+         // show the panel even when empty
          this.setVisible(true);
          return;
       }
@@ -124,6 +149,8 @@ public class MatchPanel extends JPanel implements ActionListener {
       instructionLabel.setAlignmentX(CENTER_ALIGNMENT);
       this.add(instructionLabel);
       
+      this.add(Box.createVerticalStrut(8));
+      this.add(buildSeparator());
       this.add(Box.createVerticalStrut(10));
       
       // panel for the two columns
@@ -136,24 +163,33 @@ public class MatchPanel extends JPanel implements ActionListener {
       keyPanel = new JPanel();
       // 4 rows and 2 columns for 8 keys
       keyPanel.setLayout(new GridLayout(4, 2, 5, 5));
-      keyPanel.setMaximumSize(new Dimension(350, 260));
+      Dimension keyPanelSize = new Dimension(2 * MATCH_BUTTON_W + 5, 4 * MATCH_BUTTON_H + 3 * 5);
+      keyPanel.setPreferredSize(keyPanelSize);
+      keyPanel.setMinimumSize(keyPanelSize);
+      keyPanel.setMaximumSize(keyPanelSize);
       UIStyle.styleCardPanel(keyPanel);
       
       // definition column on the right
       defPanel = new JPanel();
       // 4 rows and 2 columns for 8 definitions
       defPanel.setLayout(new GridLayout(4, 2, 5, 5));
-      defPanel.setMaximumSize(new Dimension(350, 260));
+      Dimension defPanelSize = new Dimension(2 * MATCH_BUTTON_W + 5, 4 * MATCH_BUTTON_H + 3 * 5);
+      defPanel.setPreferredSize(defPanelSize);
+      defPanel.setMinimumSize(defPanelSize);
+      defPanel.setMaximumSize(defPanelSize);
       UIStyle.styleCardPanel(defPanel);
       
       bodyPanel.add(Box.createHorizontalGlue());
       bodyPanel.add(keyPanel);
-      bodyPanel.add(Box.createHorizontalStrut(10));
+      bodyPanel.add(Box.createHorizontalStrut(5));
       bodyPanel.add(defPanel);
       bodyPanel.add(Box.createHorizontalGlue());
       
+      // add the two-column body to the screen
       this.add(bodyPanel);
       
+      this.add(Box.createVerticalStrut(8));
+      this.add(buildSeparator());
       this.add(Box.createVerticalStrut(10));
       
       // feedback label shows correct/incorrect
@@ -174,15 +210,19 @@ public class MatchPanel extends JPanel implements ActionListener {
       backButton.setFocusPainted(false);
       UIStyle.styleButton(backButton, 120, 34);
       this.add(backButton);
+      // extra padding so the bottom button doesn't feel cramped
+      this.add(Box.createVerticalStrut(10));
       
       // initialize selection state
       // -1 means nothing is selected yet
       selectedKey = -1;
       selectedDef = -1;
+      waitingForNextRound = false;
       
       // load the first round
       loadRound();
       
+      // show the panel once ready
       this.setVisible(true);
    }
    
@@ -195,10 +235,13 @@ public class MatchPanel extends JPanel implements ActionListener {
       defPanel.removeAll();
       keyButtons = new ArrayList<JButton>();
       defButtons = new ArrayList<JButton>();
+      keyTextPanes = new ArrayList<CenteredWrapTextPane>();
+      defTextPanes = new ArrayList<CenteredWrapTextPane>();
       keyPairIndex = new ArrayList<Integer>();
       defPairIndex = new ArrayList<Integer>();
       selectedKey = -1;
       selectedDef = -1;
+      waitingForNextRound = false;
       
       // reset feedback
       feedbackLabel.setText(" ");
@@ -234,44 +277,41 @@ public class MatchPanel extends JPanel implements ActionListener {
       for (int i = 0; i < keyOrder.size(); i++) {
          int pairIndex = keyOrder.get(i);
          JButton keyButton = new JButton();
-         keyButton.setLayout(new BorderLayout());
          keyButton.setActionCommand("key:" + i);
          keyButton.addActionListener(this);
          keyButton.setFocusable(false);
          keyButton.setFocusPainted(false);
          keyButton.setOpaque(true);
-         keyButton.setPreferredSize(new Dimension(160, 70));
-         keyButton.setMinimumSize(new Dimension(160, 70));
-         keyButton.setMaximumSize(new Dimension(160, 70));
+         keyButton.setPreferredSize(new Dimension(MATCH_BUTTON_W, MATCH_BUTTON_H));
+         keyButton.setMinimumSize(new Dimension(MATCH_BUTTON_W, MATCH_BUTTON_H));
+         keyButton.setMaximumSize(new Dimension(MATCH_BUTTON_W, MATCH_BUTTON_H));
          UIStyle.styleButton(keyButton);
          
-         // text area inside the button so text can wrap without resizing the button
-         JTextArea keyText = new JTextArea(keys.get(pairIndex));
-         keyText.setLineWrap(true);
-         keyText.setWrapStyleWord(true);
-         keyText.setEditable(false);
-         keyText.setFocusable(false);
-         keyText.setOpaque(false);
-         keyText.setBackground(keyButton.getBackground());
-         keyText.setForeground(UIStyle.ACCENT_TEXT);
-         keyText.setFont(UIStyle.BODY_FONT);
-         keyText.setAlignmentX(CENTER_ALIGNMENT);
-         keyText.setAlignmentY(CENTER_ALIGNMENT);
-         // forward clicks on the text area to the button
+         // center and wrap the key text inside the button
+         keyButton.setLayout(new GridBagLayout());
+         CenteredWrapTextPane keyText = buildMatchText(keys.get(pairIndex));
          keyText.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(MouseEvent e) {
+            public void mousePressed(MouseEvent e) {
+               // forward clicks on the text to the button
                keyButton.doClick();
             }
          });
-         keyButton.add(keyText, BorderLayout.CENTER);
+         GridBagConstraints keyGbc = new GridBagConstraints();
+         keyGbc.gridx = 0;
+         keyGbc.gridy = 0;
+         keyGbc.anchor = GridBagConstraints.CENTER;
+         keyButton.add(keyText, keyGbc);
          
+         // keep text panes so we can update colors on highlight
+         keyTextPanes.add(keyText);
          // store the default color once
          // we use it to reset highlights on incorrect matches
          if (defaultColor == null) {
             defaultColor = keyButton.getBackground();
          }
          
+         // keep index mapping so we can check matches later
          keyButtons.add(keyButton);
          keyPairIndex.add(pairIndex);
          keyPanel.add(keyButton);
@@ -282,38 +322,35 @@ public class MatchPanel extends JPanel implements ActionListener {
       for (int i = 0; i < defOrder.size(); i++) {
          int pairIndex = defOrder.get(i);
          JButton defButton = new JButton();
-         defButton.setLayout(new BorderLayout());
          defButton.setActionCommand("def:" + i);
          defButton.addActionListener(this);
          defButton.setFocusable(false);
          defButton.setFocusPainted(false);
          defButton.setOpaque(true);
-         defButton.setPreferredSize(new Dimension(160, 70));
-         defButton.setMinimumSize(new Dimension(160, 70));
-         defButton.setMaximumSize(new Dimension(160, 70));
+         defButton.setPreferredSize(new Dimension(MATCH_BUTTON_W, MATCH_BUTTON_H));
+         defButton.setMinimumSize(new Dimension(MATCH_BUTTON_W, MATCH_BUTTON_H));
+         defButton.setMaximumSize(new Dimension(MATCH_BUTTON_W, MATCH_BUTTON_H));
          UIStyle.styleButton(defButton);
          
-         // text area inside the button so text can wrap without resizing the button
-         JTextArea defText = new JTextArea(defs.get(pairIndex));
-         defText.setLineWrap(true);
-         defText.setWrapStyleWord(true);
-         defText.setEditable(false);
-         defText.setFocusable(false);
-         defText.setOpaque(false);
-         defText.setBackground(defButton.getBackground());
-         defText.setForeground(UIStyle.ACCENT_TEXT);
-         defText.setFont(UIStyle.BODY_FONT);
-         defText.setAlignmentX(CENTER_ALIGNMENT);
-         defText.setAlignmentY(CENTER_ALIGNMENT);
-         // forward clicks on the text area to the button
+         // center and wrap the definition text inside the button
+         defButton.setLayout(new GridBagLayout());
+         CenteredWrapTextPane defText = buildMatchText(defs.get(pairIndex));
          defText.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(MouseEvent e) {
+            public void mousePressed(MouseEvent e) {
+               // forward clicks on the text to the button
                defButton.doClick();
             }
          });
-         defButton.add(defText, BorderLayout.CENTER);
+         GridBagConstraints defGbc = new GridBagConstraints();
+         defGbc.gridx = 0;
+         defGbc.gridy = 0;
+         defGbc.anchor = GridBagConstraints.CENTER;
+         defButton.add(defText, defGbc);
          
+         // keep text panes so we can update colors on highlight
+         defTextPanes.add(defText);
+         // keep index mapping so we can check matches later
          defButtons.add(defButton);
          defPairIndex.add(pairIndex);
          defPanel.add(defButton);
@@ -349,18 +386,48 @@ public class MatchPanel extends JPanel implements ActionListener {
          defButton.setBackground(Color.GREEN);
          keyButton.setEnabled(false);
          defButton.setEnabled(false);
+         keyTextPanes.get(selectedKey).setForeground(Color.BLACK);
+         defTextPanes.get(selectedDef).setForeground(Color.BLACK);
          
          feedbackLabel.setText("Correct!");
       }
       else {
-         // incorrect match: reset colors
-         // the user can try again without penalty
+         // incorrect match: fade red back to the default color
          JButton keyButton = keyButtons.get(selectedKey);
          JButton defButton = defButtons.get(selectedDef);
-         keyButton.setBackground(defaultColor);
-         defButton.setBackground(defaultColor);
+         int keyIndex = selectedKey;
+         int defIndex = selectedDef;
+         
+         keyButton.setBackground(Color.RED);
+         defButton.setBackground(Color.RED);
+         keyTextPanes.get(keyIndex).setForeground(Color.WHITE);
+         defTextPanes.get(defIndex).setForeground(Color.WHITE);
+         
+         // temporarily disable just the chosen buttons so the flash is visible
+         keyButton.setEnabled(false);
+         defButton.setEnabled(false);
          
          feedbackLabel.setText("Try again.");
+         
+         if (incorrectTimer != null && incorrectTimer.isRunning()) {
+            incorrectTimer.stop();
+         }
+         int[] step = new int[] { 0 };
+         incorrectTimer = new Timer(INCORRECT_FADE_DELAY_MS, evt -> {
+            step[0]++;
+            double t = Math.min(1.0, step[0] / (double) INCORRECT_FADE_STEPS);
+            Color fadeColor = blend(Color.RED, defaultColor, t);
+            keyButtons.get(keyIndex).setBackground(fadeColor);
+            defButtons.get(defIndex).setBackground(fadeColor);
+            if (t >= 1.0) {
+               keyButtons.get(keyIndex).setEnabled(true);
+               defButtons.get(defIndex).setEnabled(true);
+               keyTextPanes.get(keyIndex).setForeground(UIStyle.ACCENT_TEXT);
+               defTextPanes.get(defIndex).setForeground(UIStyle.ACCENT_TEXT);
+               ((Timer) evt.getSource()).stop();
+            }
+         });
+         incorrectTimer.start();
       }
       
       // clear selections so the user can choose again
@@ -369,9 +436,25 @@ public class MatchPanel extends JPanel implements ActionListener {
       
       // check if all matches are complete
       // if they are, load the next round
-      if (allMatched()) {
+      if (allMatched() && !waitingForNextRound) {
          feedbackLabel.setText("Round complete! Loading next...");
-         loadRound();
+         waitingForNextRound = true;
+         // disable any remaining buttons while we wait to reshuffle
+         for (int i = 0; i < keyButtons.size(); i++) {
+            keyButtons.get(i).setEnabled(false);
+         }
+         for (int i = 0; i < defButtons.size(); i++) {
+            defButtons.get(i).setEnabled(false);
+         }
+         if (nextRoundTimer != null && nextRoundTimer.isRunning()) {
+            nextRoundTimer.stop();
+         }
+         nextRoundTimer = new Timer(1000, evt -> {
+            waitingForNextRound = false;
+            loadRound();
+         });
+         nextRoundTimer.setRepeats(false);
+         nextRoundTimer.start();
       }
    }
    
@@ -386,7 +469,50 @@ public class MatchPanel extends JPanel implements ActionListener {
          }
       }
       
+      // no enabled buttons means the round is complete
       return true;
+   }
+   
+   /**
+    * buildMatchText creates a wrapped text pane that fits inside a match button.
+    */
+   private CenteredWrapTextPane buildMatchText(String text) {
+      CenteredWrapTextPane textPane = new CenteredWrapTextPane(text, MATCH_BUTTON_W - 24);
+      textPane.setFont(UIStyle.BODY_FONT);
+      textPane.setForeground(UIStyle.ACCENT_TEXT);
+      fitTextToHeight(textPane, MATCH_BUTTON_H - 20);
+      return textPane;
+   }
+   
+   /**
+    * fitTextToHeight shrinks the font until the text fits inside the target height.
+    */
+   private void fitTextToHeight(CenteredWrapTextPane textPane, int maxHeight) {
+      float size = textPane.getFont().getSize2D();
+      while (textPane.getPreferredSize().height > maxHeight && size > 10f) {
+         size -= 1f;
+         textPane.setFont(textPane.getFont().deriveFont(size));
+      }
+   }
+   
+   /**
+    * buildSeparator creates a thin divider for the layout.
+    */
+   private JSeparator buildSeparator() {
+      JSeparator separator = new JSeparator();
+      separator.setMaximumSize(new Dimension(MainFrame.WIDTH - 160, 2));
+      separator.setForeground(UIStyle.SOFT_OUTLINE);
+      return separator;
+   }
+   
+   /**
+    * blend creates a color between start and end using t (0.0-1.0).
+    */
+   private Color blend(Color start, Color end, double t) {
+      int r = (int) Math.round(start.getRed() + (end.getRed() - start.getRed()) * t);
+      int g = (int) Math.round(start.getGreen() + (end.getGreen() - start.getGreen()) * t);
+      int b = (int) Math.round(start.getBlue() + (end.getBlue() - start.getBlue()) * t);
+      return new Color(r, g, b);
    }
    
    /** Override for actionPerformed */
@@ -408,16 +534,27 @@ public class MatchPanel extends JPanel implements ActionListener {
          if (!keyButtons.get(index).isEnabled()) {
             return;
          }
+         // clicking the same key deselects it
+         if (selectedKey == index) {
+            keyButtons.get(index).setBackground(defaultColor);
+            keyTextPanes.get(index).setForeground(UIStyle.ACCENT_TEXT);
+            selectedKey = -1;
+            return;
+         }
          
          // reset previous key highlight
          // this prevents two yellow keys at once
          if (selectedKey != -1) {
             keyButtons.get(selectedKey).setBackground(defaultColor);
+            keyTextPanes.get(selectedKey).setForeground(UIStyle.ACCENT_TEXT);
          }
          
+         // mark the new selection
          selectedKey = index;
          keyButtons.get(index).setBackground(Color.YELLOW);
+         keyTextPanes.get(index).setForeground(Color.BLACK);
          
+         // check for a match if both sides are selected
          checkMatch();
       }
       else if (message.startsWith("def:")) {
@@ -428,17 +565,29 @@ public class MatchPanel extends JPanel implements ActionListener {
          if (!defButtons.get(index).isEnabled()) {
             return;
          }
+         // clicking the same definition deselects it
+         if (selectedDef == index) {
+            defButtons.get(index).setBackground(defaultColor);
+            defTextPanes.get(index).setForeground(UIStyle.ACCENT_TEXT);
+            selectedDef = -1;
+            return;
+         }
          
          // reset previous def highlight
          // this prevents two yellow definitions at once
          if (selectedDef != -1) {
             defButtons.get(selectedDef).setBackground(defaultColor);
+            defTextPanes.get(selectedDef).setForeground(UIStyle.ACCENT_TEXT);
          }
          
+         // mark the new selection
          selectedDef = index;
          defButtons.get(index).setBackground(Color.YELLOW);
+         defTextPanes.get(index).setForeground(Color.BLACK);
          
+         // check for a match if both sides are selected
          checkMatch();
       }
    }
+
 }

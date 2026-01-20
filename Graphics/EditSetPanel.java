@@ -13,6 +13,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.BorderLayout;
+import java.awt.Font;
 import java.io.File;
 import java.io.PrintStream;
 import java.io.FileNotFoundException;
@@ -73,13 +75,16 @@ public class EditSetPanel extends JPanel implements ActionListener {
     * Constructor which takes a file name, reads the file or creates one if not already existing, loads the set and the graphics from that.
     */
    public EditSetPanel(String fileName) {
+      // build a path for the requested set file
       String filePath = dir + fileName + ".txt";
+      // load existing data or create a new file
       SetRegistry registry = new SetRegistry();
       registry.loadFile(filePath);
       setFile = registry.getSetFile();
       initKeys = registry.getKeys();
       initDefs = registry.getDefs();
       
+      // create storage for the editable text areas
       keysList = new ArrayList<JTextArea>();
       definitionsList = new ArrayList<JTextArea>();
       
@@ -164,9 +169,14 @@ public class EditSetPanel extends JPanel implements ActionListener {
      
       // create a panel to hold the key and definition panels
       JPanel bodyPanel = new JPanel();
-      bodyPanel.setLayout(new BoxLayout(bodyPanel, BoxLayout.X_AXIS));
+      bodyPanel.setLayout(new BorderLayout());
       UIStyle.stylePanel(bodyPanel);
       bodyPanel.setAlignmentY(Component.TOP_ALIGNMENT);
+      
+      // columns panel stays at the top of the scroll view
+      JPanel columnsPanel = new JPanel();
+      columnsPanel.setLayout(new BoxLayout(columnsPanel, BoxLayout.X_AXIS));
+      UIStyle.stylePanel(columnsPanel);
       
       // create panels for the keys and definitions
       keyPanel = new JPanel();
@@ -186,41 +196,26 @@ public class EditSetPanel extends JPanel implements ActionListener {
       keyPanel.setAlignmentY(Component.TOP_ALIGNMENT);
       defPanel.setAlignmentY(Component.TOP_ALIGNMENT);
       
-      // padding
-      keyPanel.add(Box.createVerticalStrut(5));
-      defPanel.add(Box.createVerticalStrut(5));
-      
-      // label the panels
-      JLabel keyLabel = new JLabel("KEY");
-      keyLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-      JLabel defLabel = new JLabel("DEFINITION");
-      defLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-      UIStyle.styleLabel(keyLabel);
-      UIStyle.styleLabel(defLabel);
-      keyPanel.add(keyLabel);
-      defPanel.add(defLabel);
-      
-      // ADDING A BOTTOM GLUE! This glue will stay at the bottom using the position function
-      // of the add method. add(element, position); where position is the .getComponent - 1
-      keyPanel.add(Box.createVerticalGlue());
-      defPanel.add(Box.createVerticalGlue());      
-      
       // for each key-value pair (standard for to allow for indexing through both arrayLists),
       for (int i = 0; i < initKeys.size(); i++) {
          addPairData(initKeys.get(i), initDefs.get(i));
       }      
+      // build the panels from the stored text areas
       rebuildPanels();
       
-      // compile bodyPanel
-      bodyPanel.add(Box.createHorizontalGlue());
-      bodyPanel.add(keyPanel);
-      bodyPanel.add(Box.createHorizontalStrut(10));
+      // compile columnsPanel
+      columnsPanel.add(Box.createHorizontalGlue());
+      columnsPanel.add(keyPanel);
+      columnsPanel.add(Box.createHorizontalStrut(10));
       JSeparator midSep = new JSeparator(SwingConstants.VERTICAL);
       midSep.setMaximumSize(new Dimension(2, Integer.MAX_VALUE));
-      bodyPanel.add(midSep);
-      bodyPanel.add(Box.createHorizontalStrut(10));
-      bodyPanel.add(defPanel);
-      bodyPanel.add(Box.createHorizontalGlue());
+      columnsPanel.add(midSep);
+      columnsPanel.add(Box.createHorizontalStrut(10));
+      columnsPanel.add(defPanel);
+      columnsPanel.add(Box.createHorizontalGlue());
+      
+      // let the columns fill the viewport so the divider spans the full height
+      bodyPanel.add(columnsPanel, BorderLayout.CENTER);
       
       
       // create a scrollpane for body panel
@@ -272,6 +267,7 @@ public class EditSetPanel extends JPanel implements ActionListener {
       this.add(footer);
       this.add(Box.createVerticalStrut(5));
      
+      // show the panel once initialized
       this.setVisible(true);
    }
    
@@ -282,6 +278,7 @@ public class EditSetPanel extends JPanel implements ActionListener {
     * constructor and the add another button action.
     */
    private void addPair(String key, String definition) {
+      // add the data and then rebuild the panels to show it
       addPairData(key, definition);
       rebuildPanels();
    }
@@ -318,24 +315,28 @@ public class EditSetPanel extends JPanel implements ActionListener {
       keyPanel.removeAll();
       defPanel.removeAll();
       
-      // re-add labels
+      // add headers inside the scrollable area so they move with content
       JLabel keyLabel = new JLabel("KEY");
-      keyLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
       JLabel defLabel = new JLabel("DEFINITION");
-      defLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
       UIStyle.styleLabel(keyLabel);
       UIStyle.styleLabel(defLabel);
+      keyLabel.setFont(UIStyle.BODY_FONT.deriveFont(Font.BOLD, 18f));
+      defLabel.setFont(UIStyle.BODY_FONT.deriveFont(Font.BOLD, 18f));
+      keyLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+      defLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+      keyPanel.add(Box.createVerticalStrut(5));
       keyPanel.add(keyLabel);
+      defPanel.add(Box.createVerticalStrut(5));
       defPanel.add(defLabel);
-      
-      // add bottom glue
-      keyPanel.add(Box.createVerticalGlue());
-      defPanel.add(Box.createVerticalGlue());
       
       // add each pair
       for (int i = 0; i < keysList.size(); i++) {
-         addPairComponents(keysList.get(i), definitionsList.get(i), i);
+         addPairComponents(keysList.get(i), definitionsList.get(i));
       }
+      
+      // glue keeps content pinned to the top while allowing the panel to stretch
+      keyPanel.add(Box.createVerticalGlue());
+      defPanel.add(Box.createVerticalGlue());
       
       // lock in the column widths while keeping the computed heights for scrolling
       int colW = keyPanel.getMinimumSize().width;
@@ -357,19 +358,19 @@ public class EditSetPanel extends JPanel implements ActionListener {
    /**
     * addPairComponents adds the visual components for a single pair.
     */
-   private void addPairComponents(JTextArea keyArea, JTextArea defArea, int index) {   
-      // get the position so i don't have to use the same code many times
-      int position = keyPanel.getComponentCount() - 1;
-      
+   private void addPairComponents(JTextArea keyArea, JTextArea defArea) {   
       // padding
-      keyPanel.add(Box.createVerticalStrut(5), position);
-      defPanel.add(Box.createVerticalStrut(5), position);
-      position++;
+      keyPanel.add(Box.createVerticalStrut(5));
+      defPanel.add(Box.createVerticalStrut(5));
    
       // line separator
-      keyPanel.add(new JSeparator(SwingConstants.HORIZONTAL), position);
-      defPanel.add(new JSeparator(SwingConstants.HORIZONTAL), position);
-      position++; // keep track
+      JSeparator keySep = new JSeparator(SwingConstants.HORIZONTAL);
+      JSeparator defSep = new JSeparator(SwingConstants.HORIZONTAL);
+      // keep separators from stretching and pushing content down
+      keySep.setMaximumSize(new Dimension(Integer.MAX_VALUE, keySep.getPreferredSize().height));
+      defSep.setMaximumSize(new Dimension(Integer.MAX_VALUE, defSep.getPreferredSize().height));
+      keyPanel.add(keySep);
+      defPanel.add(defSep);
       
       // because JTextAreas do not allow scrolling by default, we have to manually override it. Yay.
       JScrollPane keySP = new JScrollPane(keyArea);
@@ -380,7 +381,7 @@ public class EditSetPanel extends JPanel implements ActionListener {
       defSP.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
       
       // give each row a consistent height so rows don't collapse
-      Dimension rowSize = new Dimension(280, 90);
+      Dimension rowSize = new Dimension(340, 110);
       keySP.setPreferredSize(rowSize);
       defSP.setPreferredSize(rowSize);
       keySP.setMinimumSize(rowSize);
@@ -391,22 +392,16 @@ public class EditSetPanel extends JPanel implements ActionListener {
       defSP.getViewport().setBackground(UIStyle.CARD_BG);
       
       // padding
-      keyPanel.add(Box.createVerticalStrut(5), position);
-      defPanel.add(Box.createVerticalStrut(5), position);
-      position++;
+      keyPanel.add(Box.createVerticalStrut(5));
+      defPanel.add(Box.createVerticalStrut(5));
       
       // add each scroll pane to their respective panels.
-      keyPanel.add(keySP, position);
-      defPanel.add(defSP, position);
-      position++;
+      keyPanel.add(keySP);
+      defPanel.add(defSP);
       
       // padding
-      keyPanel.add(Box.createVerticalStrut(5), position);
-      defPanel.add(Box.createVerticalStrut(5), position);
-      
-      // add matching spacing so rows stay aligned
-      keyPanel.add(Box.createVerticalStrut(5), position);
-      defPanel.add(Box.createVerticalStrut(5), position);
+      keyPanel.add(Box.createVerticalStrut(5));
+      defPanel.add(Box.createVerticalStrut(5));
       
       // revalidate/repaint the panels.
       keyPanel.revalidate();
@@ -460,6 +455,7 @@ public class EditSetPanel extends JPanel implements ActionListener {
          }
          renameFileBox.setText(savedName);
          
+         // open the file for writing
          PrintStream pr = new PrintStream(setFile);
          
          // for each key-def text area pair
@@ -479,9 +475,11 @@ public class EditSetPanel extends JPanel implements ActionListener {
             pr.println(key + "\t" + def);
          }
          
+         // close the output stream to flush data
          pr.close();
       }
       catch (FileNotFoundException fnfe) {
+         // report errors so they are visible during testing
          fnfe.printStackTrace();
       }
       
@@ -493,6 +491,7 @@ public class EditSetPanel extends JPanel implements ActionListener {
     * this is an overload for the newUnexistingFileName which takes nothing. Default: Unnamed Set
     */
    public static String newUnexistingFileName() {
+      // default base name for new sets
       return newUnexistingFileName("Unnamed Set");
    }
    
@@ -515,6 +514,7 @@ public class EditSetPanel extends JPanel implements ActionListener {
          newFile = new File(dir + fileName + counter + ".txt");
       }
       
+      // return the first unused base name
       return (fileName + counter);
    }
   
@@ -529,14 +529,17 @@ public class EditSetPanel extends JPanel implements ActionListener {
       String message = e.getActionCommand();
       
       if (message.equals("add")) {
+         // add a fresh pair of boxes
          this.addPair("Key", "Definition");
       }
       else if (message.equals("clear")) {
+         // remove empty rows to keep things tidy
          clearEmptyRows();
       }
       else if (message.equals("save")) {
+         // save and notify the user
          this.saveFile();
-         javax.swing.JOptionPane.showMessageDialog(this, "Changes Saved!");
+         UIStyle.showMessageDialog(this, "Changes Saved!", "Saved", javax.swing.JOptionPane.INFORMATION_MESSAGE);
       }
       else if (message.equals("close")) {
          // TO DO: make panel to do are you sure?
@@ -553,15 +556,18 @@ public class EditSetPanel extends JPanel implements ActionListener {
          String def = definitionsList.get(i).getText().trim();
          
          if (key.length() == 0 && def.length() == 0) {
+            // remove pairs that are completely empty
             keysList.remove(i);
             definitionsList.remove(i);
          }
       }
       
       if (keysList.size() == 0) {
+         // keep at least one row available
          addPairData("Key", "Definition");
       }
       
+      // rebuild the UI to reflect removals
       rebuildPanels();
    }
    

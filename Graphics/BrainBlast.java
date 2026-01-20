@@ -15,7 +15,7 @@
 public class BrainBlast {
    /** Starts the BrainBlast application. */
    public static void main(String[] args) {
-      // launch the main frame
+      // launch the main frame and let Swing handle the rest
       new MainFrame();
    }
 }

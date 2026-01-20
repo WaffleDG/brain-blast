@@ -1,9 +1,14 @@
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
 import javax.swing.BoxLayout;
 import javax.swing.BorderFactory;
+import javax.swing.border.LineBorder;
+import javax.swing.Scrollable;
 import java.awt.Dimension;
+import java.awt.Color;
+import java.awt.Insets;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -26,8 +31,17 @@ import java.awt.event.MouseEvent;
  * @see        JPanel
  */
 public class Flashcard extends JPanel implements ActionListener {
+   /** Fixed card width for wrapping. */
+   private static final int CARD_WIDTH = 720;
+   /** Fixed card height for layout. */
+   private static final int CARD_HEIGHT = 230;
+   /** Width used when wrapping text inside the card. */
+   private static final int TEXT_WIDTH = 640;
+   /** Minimum height to allow vertical centering when text is short. */
+   private static final int TEXT_MIN_HEIGHT = 180;
+   
    /** Private variable to save the key as a JPanel */
-   private JTextArea cardText;
+   private CenteredWrapTextPane cardText;
    /** Private variable for the key text */
    private String keyText;
    /** Private variable for the definition text */
@@ -37,55 +51,139 @@ public class Flashcard extends JPanel implements ActionListener {
 
    /** Constructor to take the key def pair */
    public Flashcard(String key, String def) {
-      // save text
+      // save text for both sides of the card
       keyText = key;
       defText = def;
+      // start on the key side by default
       showingKey = true;
       
       // simple vertical layout
       this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-      UIStyle.styleCardPanel(this);
+      // white background to feel like a physical flashcard
+      this.setBackground(Color.WHITE);
+      this.setOpaque(true);
       
       // create and add a text area so long text can wrap
-      cardText = new JTextArea(keyText);
-      cardText.setLineWrap(true);
-      cardText.setWrapStyleWord(true);
+      cardText = new CenteredWrapTextPane(keyText, TEXT_WIDTH);
+      // seed with the key text
+      cardText.setText(keyText);
+      // keep this as read-only content
       cardText.setEditable(false);
+      // keep the text transparent so the wrapper controls background
       cardText.setOpaque(false);
-      cardText.setFont(UIStyle.BODY_FONT);
+      cardText.setFont(UIStyle.BODY_FONT.deriveFont(16f));
+      // ensure text contrasts with the white card background
+      cardText.setForeground(Color.BLACK);
+      // remove default margins so centered text is truly centered
+      cardText.setMargin(new Insets(0, 0, 0, 0));
+      cardText.setFocusable(false);
       
       // put the text area in a scroll pane for overflow
-      JScrollPane textScroll = new JScrollPane(cardText);
+      CenteredScrollPanel textWrapper = new CenteredScrollPanel(cardText);
+      JScrollPane textScroll = new JScrollPane(textWrapper);
       textScroll.setBorder(null);
       textScroll.setOpaque(false);
-      textScroll.getViewport().setOpaque(false);
+      // keep the viewport white so text stays visible
+      textScroll.getViewport().setOpaque(true);
+      textScroll.getViewport().setBackground(Color.WHITE);
+      // never allow horizontal scroll; wrap instead
       textScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+      // only show vertical scroll when content is long
+      textScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
       
       this.add(textScroll);
       
       // give the card a visible box so it is easy to click
-      this.setBorder(BorderFactory.createEtchedBorder());
-      this.setPreferredSize(new Dimension(600, 180));
+      this.setBorder(BorderFactory.createCompoundBorder(
+         new LineBorder(UIStyle.ACCENT, 2, true),
+         BorderFactory.createEmptyBorder(10, 10, 10, 10)
+      ));
+      // keep size consistent across cards
+      this.setPreferredSize(new Dimension(CARD_WIDTH, CARD_HEIGHT));
       
-      // clicking the panel will flip the card
-      this.addMouseListener(new MouseAdapter() {
+      // clicking the panel or its text flips the card
+      MouseAdapter flipListener = new MouseAdapter() {
          @Override
          public void mouseClicked(MouseEvent e) {
+            // flip the card in place
             flip();
          }
-      });
+      };
+      // let the background, text, and viewport all respond
+      this.addMouseListener(flipListener);
+      cardText.addMouseListener(flipListener);
+      textScroll.getViewport().addMouseListener(flipListener);
    }
    
    /**
     * flip swaps between the key and definition.
     */
    public void flip() {
+      // swap the side that is showing
       showingKey = !showingKey;
       if (showingKey) {
+         // show the key
          cardText.setText(keyText);
       }
       else {
+         // show the definition
          cardText.setText(defText);
+      }
+   }
+   
+   /**
+    * CenteredScrollPanel centers short text and allows scrolling when text is long.
+    */
+   private static class CenteredScrollPanel extends JPanel implements Scrollable {
+      private final CenteredWrapTextPane textPane;
+      
+      private CenteredScrollPanel(CenteredWrapTextPane textPane) {
+         super(new GridBagLayout());
+         this.textPane = textPane;
+         setOpaque(true);
+         setBackground(Color.WHITE);
+         
+         GridBagConstraints gbc = new GridBagConstraints();
+         gbc.gridx = 0;
+         gbc.gridy = 0;
+         gbc.anchor = GridBagConstraints.CENTER;
+         add(textPane, gbc);
+      }
+      
+      @Override
+      public Dimension getPreferredSize() {
+         Dimension pref = textPane.getPreferredSize();
+         int h = Math.max(TEXT_MIN_HEIGHT, pref.height);
+         return new Dimension(TEXT_WIDTH, h);
+      }
+      
+      @Override
+      public Dimension getPreferredScrollableViewportSize() {
+         return new Dimension(TEXT_WIDTH, TEXT_MIN_HEIGHT);
+      }
+      
+      @Override
+      public int getScrollableUnitIncrement(java.awt.Rectangle visibleRect, int orientation, int direction) {
+         return 16;
+      }
+      
+      @Override
+      public int getScrollableBlockIncrement(java.awt.Rectangle visibleRect, int orientation, int direction) {
+         return 48;
+      }
+      
+      @Override
+      public boolean getScrollableTracksViewportWidth() {
+         return true;
+      }
+      
+      @Override
+      public boolean getScrollableTracksViewportHeight() {
+         if (getParent() instanceof javax.swing.JViewport) {
+            int viewportH = ((javax.swing.JViewport) getParent()).getHeight();
+            return viewportH > getPreferredSize().height;
+         }
+         return false;
       }
    }
    

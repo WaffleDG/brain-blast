@@ -3,15 +3,19 @@ import javax.swing.JButton;
 import javax.swing.JScrollPane;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
-import java.awt.BorderLayout;
 import javax.swing.JOptionPane;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JSeparator;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
 import java.awt.GridLayout;
 import java.awt.Dimension;
-import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.io.File;
 
@@ -46,18 +50,27 @@ public class FindSet extends JPanel implements ActionListener {
    private JTextField searchField;
    /** Wrapper panel for centering the grid in the scroll view */
    private JPanel gridWrapper;
+   /** Scroll pane for the grid */
+   private JScrollPane scrollPane;
    
    /** Grid layout column count for the catalog */
    private static final int SET_COLUMNS = 3;
    /** Grid gap size for the catalog */
    private static final int SET_GAP = 10;
    /** Size for each set button (square) */
-   private static final int SET_BUTTON_SIZE = 140;
+   private int buttonSize;
    
    /**
     * FindSet constructor - builds the catalog view as a JScrollPane.
     */
    public FindSet() {
+      // compute a button size so three columns fill most of the screen
+      int availableW = MainFrame.WIDTH - 40;
+      buttonSize = (availableW - (SET_COLUMNS - 1) * SET_GAP) / SET_COLUMNS;
+      if (buttonSize < 140) {
+         buttonSize = 140;
+      }
+      // prepare storage and load current set names
       setButtons = new ArrayList<JButton>();
       registry = new SetRegistry();
       setNames = registry.getSetNames();
@@ -76,7 +89,9 @@ public class FindSet extends JPanel implements ActionListener {
       UIStyle.styleTitle(title);
       title.setAlignmentX(CENTER_ALIGNMENT);
       this.add(title);
-      this.add(Box.createVerticalStrut(5));
+      this.add(Box.createVerticalStrut(6));
+      this.add(buildSeparator());
+      this.add(Box.createVerticalStrut(8));
       
       // search panel
       JPanel searchPanel = new JPanel();
@@ -107,19 +122,28 @@ public class FindSet extends JPanel implements ActionListener {
       searchButton.setFocusable(false);
       searchButton.setFocusPainted(false);
       
+      // group the search controls so the whole set can be centered
+      JPanel searchGroup = new JPanel();
+      searchGroup.setLayout(new BoxLayout(searchGroup, BoxLayout.X_AXIS));
+      UIStyle.stylePanel(searchGroup);
+      searchGroup.add(searchLabel);
+      searchGroup.add(Box.createHorizontalStrut(5));
+      searchGroup.add(searchField);
+      searchGroup.add(Box.createHorizontalStrut(5));
+      searchGroup.add(searchButton);
+      
       searchPanel.add(Box.createHorizontalStrut(5));
       searchPanel.add(backButton);
-      searchPanel.add(Box.createHorizontalStrut(10));
-      searchPanel.add(searchLabel);
-      searchPanel.add(Box.createHorizontalStrut(5));
-      searchPanel.add(searchField);
-      searchPanel.add(Box.createHorizontalStrut(5));
-      searchPanel.add(searchButton);
+      searchPanel.add(Box.createHorizontalGlue());
+      searchPanel.add(searchGroup);
+      searchPanel.add(Box.createHorizontalGlue());
       searchPanel.add(Box.createHorizontalStrut(5));
       
       // limit the height of the search panel
       searchPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, searchPanel.getPreferredSize().height));
       this.add(searchPanel);
+      this.add(Box.createVerticalStrut(8));
+      this.add(buildSeparator());
       this.add(Box.createVerticalStrut(10));
       
       // Create panel for sets
@@ -134,11 +158,12 @@ public class FindSet extends JPanel implements ActionListener {
       JPanel gridRow = new JPanel();
       gridRow.setLayout(new BoxLayout(gridRow, BoxLayout.X_AXIS));
       UIStyle.styleCardPanel(gridRow);
+      // horizontal glue keeps the grid centered
       gridRow.add(Box.createHorizontalGlue());
       gridRow.add(panelOfSets);
       gridRow.add(Box.createHorizontalGlue());
       gridRow.setAlignmentX(CENTER_ALIGNMENT);
-      gridWrapper.add(Box.createVerticalGlue());
+      // keep the grid anchored to the top of the scroll view
       gridWrapper.add(gridRow);
       gridWrapper.add(Box.createVerticalGlue());
       
@@ -146,7 +171,7 @@ public class FindSet extends JPanel implements ActionListener {
       rebuildButtons("");
       
       // Create a JScrollPane by passing in the JPanel as the view
-      JScrollPane scrollPane = new JScrollPane(gridWrapper);
+      scrollPane = new JScrollPane(gridWrapper);
       scrollPane.setPreferredSize(new Dimension(MainFrame.WIDTH - 40, MainFrame.HEIGHT - 120));
       scrollPane.getViewport().setBackground(UIStyle.CARD_BG);
       scrollPane.setBorder(javax.swing.BorderFactory.createLineBorder(UIStyle.SOFT_OUTLINE));
@@ -157,12 +182,17 @@ public class FindSet extends JPanel implements ActionListener {
       scrollPane.getVerticalScrollBar().setUnitIncrement(16);
       
 
-      // add glue to the scroll pane for spacing
-      scrollPane.add(Box.createVerticalGlue());
       // add scroll pane
       this.add(scrollPane);
       this.add(Box.createVerticalStrut(5));
       
+      // ensure the initial view starts at the top
+      SwingUtilities.invokeLater(() -> {
+         scrollPane.getVerticalScrollBar().setValue(0);
+         scrollPane.getHorizontalScrollBar().setValue(0);
+      });
+      
+      // ready to display
       this.setVisible(true);
    }
 
@@ -208,6 +238,7 @@ public class FindSet extends JPanel implements ActionListener {
          rebuildButtons(searchField.getText());
       }
       else if (message.equals("back")) {
+         // return to the home screen
          MainFrame.switchScreen("home");
       }
       else {
@@ -215,6 +246,16 @@ public class FindSet extends JPanel implements ActionListener {
          // clicking a set will open a popout action menu
          showActionMenu(setName);
       }
+   }
+   
+   /**
+    * buildSeparator creates a thin divider for the layout.
+    */
+   private JSeparator buildSeparator() {
+      JSeparator separator = new JSeparator();
+      separator.setMaximumSize(new Dimension(MainFrame.WIDTH - 140, 2));
+      separator.setForeground(UIStyle.SOFT_OUTLINE);
+      return separator;
    }
    
    /**
@@ -238,32 +279,33 @@ public class FindSet extends JPanel implements ActionListener {
          }
          
          // create a button for each matching set
-         // use a text area inside the button so names wrap cleanly
          JButton setButton = new JButton();
-         setButton.setLayout(new BorderLayout());
          setButton.setActionCommand(setName);
          setButton.addActionListener(this);
-         UIStyle.styleButton(setButton, SET_BUTTON_SIZE, SET_BUTTON_SIZE);
+         UIStyle.styleButton(setButton, buttonSize, buttonSize);
          setButton.setFocusable(false);
          setButton.setFocusPainted(false);
          setButton.setOpaque(true);
          
-         String htmlName = "<html><div style='text-align:center; width:"
-            + (SET_BUTTON_SIZE - 16) + "px;'>" + escapeHtml(setName) + "</div></html>";
-         JLabel nameText = new JLabel(htmlName, SwingConstants.CENTER);
+         // center and wrap the set name inside the square button
+         setButton.setLayout(new GridBagLayout());
+         CenteredWrapTextPane nameText = new CenteredWrapTextPane(setName, buttonSize - 24);
+         nameText.setFont(UIStyle.BODY_FONT.deriveFont(16f));
          nameText.setForeground(UIStyle.ACCENT_TEXT);
-         nameText.setFont(UIStyle.BODY_FONT);
-         
-         // forward clicks to the button
-         nameText.addMouseListener(new java.awt.event.MouseAdapter() {
+         nameText.addMouseListener(new MouseAdapter() {
             @Override
-            public void mousePressed(java.awt.event.MouseEvent e) {
+            public void mousePressed(MouseEvent e) {
+               // forward clicks on the text to the button
                setButton.doClick();
             }
          });
+         GridBagConstraints gbc = new GridBagConstraints();
+         gbc.gridx = 0;
+         gbc.gridy = 0;
+         gbc.anchor = GridBagConstraints.CENTER;
+         setButton.add(nameText, gbc);
          
-         setButton.add(nameText, BorderLayout.CENTER);
-         
+         // track and add the button to the grid
          setButtons.add(setButton);
          panelOfSets.add(setButton);
          anyAdded = true;
@@ -282,8 +324,8 @@ public class FindSet extends JPanel implements ActionListener {
       if (rows < 1) {
          rows = 1;
       }
-      int prefW = SET_COLUMNS * SET_BUTTON_SIZE + (SET_COLUMNS - 1) * SET_GAP;
-      int prefH = rows * SET_BUTTON_SIZE + (rows - 1) * SET_GAP;
+      int prefW = SET_COLUMNS * buttonSize + (SET_COLUMNS - 1) * SET_GAP;
+      int prefH = rows * buttonSize + (rows - 1) * SET_GAP;
       panelOfSets.setPreferredSize(new Dimension(prefW, prefH));
       panelOfSets.setMinimumSize(new Dimension(prefW, prefH));
       panelOfSets.setMaximumSize(new Dimension(prefW, prefH));
@@ -291,18 +333,16 @@ public class FindSet extends JPanel implements ActionListener {
       // refresh the grid so changes appear
       panelOfSets.revalidate();
       panelOfSets.repaint();
+      
+      // jump to the top after filtering so results are visible
+      if (scrollPane != null) {
+         SwingUtilities.invokeLater(() -> {
+            scrollPane.getVerticalScrollBar().setValue(0);
+            scrollPane.getHorizontalScrollBar().setValue(0);
+         });
+      }
    }
 
-   /**
-    * escapeHtml ensures set names render safely inside the HTML label.
-    */
-   private static String escapeHtml(String text) {
-      String escaped = text.replace("&", "&amp;");
-      escaped = escaped.replace("<", "&lt;");
-      escaped = escaped.replace(">", "&gt;");
-      return escaped;
-   }
-   
    /**
     * showActionMenu opens a popout menu for the selected set.
     */
@@ -312,13 +352,11 @@ public class FindSet extends JPanel implements ActionListener {
       
       // Bringing up a dialog with options is so much fun!
       // we provide lots of input parameters :o
-      int choice = JOptionPane.showOptionDialog(
+      int choice = UIStyle.showOptionDialog(
          this,
          "Choose an action for: " + setName,
          "Set Options",
          JOptionPane.DEFAULT_OPTION,
-         JOptionPane.PLAIN_MESSAGE,
-         null,
          options,
          options[4] // default to Learn
       );
@@ -337,14 +375,18 @@ public class FindSet extends JPanel implements ActionListener {
       }
       else if (choice == 1) {
          // delete
-         int confirm = JOptionPane.showConfirmDialog(
+         Object[] deleteOptions = {"No", "Yes"};
+         int confirm = UIStyle.showOptionDialog(
             this,
             "Delete the set \"" + setName + "\"?",
             "Confirm Delete",
-            JOptionPane.YES_NO_OPTION
+            JOptionPane.YES_NO_OPTION,
+            deleteOptions,
+            deleteOptions[0]
          );
          
-         if (confirm == JOptionPane.YES_OPTION) {
+         if (confirm == 1) {
+            // attempt to delete the file and refresh if successful
             File setFile = Paths.setFile(setName);
             if (setFile.exists() && setFile.delete()) {
                // refresh list after delete
@@ -352,7 +394,8 @@ public class FindSet extends JPanel implements ActionListener {
                rebuildButtons(searchField.getText());
             }
             else {
-               JOptionPane.showMessageDialog(this, "Could not delete the set.", "Delete Failed", JOptionPane.ERROR_MESSAGE);
+               // show an error so the user knows it failed
+               UIStyle.showMessageDialog(this, "Could not delete the set.", "Delete Failed", JOptionPane.ERROR_MESSAGE);
             }
          }
       }

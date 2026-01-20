@@ -9,7 +9,11 @@ import javax.swing.ActionMap;
 import javax.swing.KeyStroke;
 import javax.swing.JComponent;
 import javax.swing.AbstractAction;
+import javax.swing.JSeparator;
 import java.awt.Dimension;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -40,6 +44,8 @@ public class LearnSetPanel extends JPanel implements ActionListener {
    private ArrayList<String> defs;
    /** Private label for progress */
    private JLabel progressLabel;
+   /** Private label for the flashcards header */
+   private JLabel flashcardsLabel;
    /** Private panel for the card */
    private JPanel cardPanel;
    /** Private flashcard reference */
@@ -61,6 +67,7 @@ public class LearnSetPanel extends JPanel implements ActionListener {
    public LearnSetPanel(String setName) {
       // save the name so we can open match mode later
       this.setName = setName;
+      // vertical layout stacks title, card, and controls
       this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
       UIStyle.stylePanel(this);
       
@@ -71,14 +78,17 @@ public class LearnSetPanel extends JPanel implements ActionListener {
       defs = registry.getDefs();
       
       // padding
-      this.add(Box.createVerticalStrut(10));
+      this.add(Box.createVerticalStrut(8));
       
       // title for this set
       JLabel title = new JLabel("Learn: " + setName);
       UIStyle.styleTitle(title);
+      title.setFont(UIStyle.TITLE_FONT.deriveFont(Font.BOLD, 26f));
       title.setAlignmentX(CENTER_ALIGNMENT);
       this.add(title);
       
+      this.add(Box.createVerticalStrut(6));
+      this.add(buildSeparator());
       this.add(Box.createVerticalStrut(10));
       
       if (keys.size() == 0) {
@@ -98,25 +108,41 @@ public class LearnSetPanel extends JPanel implements ActionListener {
          backButton.setFocusPainted(false);
          this.add(backButton);
          
+         // show the panel even if it is empty
          this.setVisible(true);
          return;
       }
       
+      flashcardsLabel = new JLabel("Flashcards");
+      UIStyle.styleLabel(flashcardsLabel);
+      flashcardsLabel.setFont(UIStyle.BODY_FONT.deriveFont(Font.BOLD, 18f));
+      flashcardsLabel.setForeground(UIStyle.ACCENT);
+      flashcardsLabel.setAlignmentX(CENTER_ALIGNMENT);
+      this.add(flashcardsLabel);
+      
+      // progress label shows which card you're on
       progressLabel = new JLabel();
       UIStyle.styleLabel(progressLabel);
+      progressLabel.setFont(UIStyle.BODY_FONT.deriveFont(Font.BOLD, 16f));
       progressLabel.setAlignmentX(CENTER_ALIGNMENT);
       this.add(progressLabel);
       
+      this.add(Box.createVerticalStrut(8));
+      this.add(buildSeparator());
       this.add(Box.createVerticalStrut(10));
       
       cardPanel = new JPanel();
-      cardPanel.setMaximumSize(new Dimension(MainFrame.WIDTH - 40, 200));
-      cardPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+      // center the flashcard inside the panel
+      cardPanel.setLayout(new GridBagLayout());
+      cardPanel.setMaximumSize(new Dimension(MainFrame.WIDTH - 60, 280));
+      cardPanel.setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
       UIStyle.styleCardPanel(cardPanel);
+      cardPanel.setAlignmentX(CENTER_ALIGNMENT);
       // clicking the card area flips the card
       cardPanel.addMouseListener(new MouseAdapter() {
          @Override
          public void mouseClicked(MouseEvent e) {
+            // flip the current card when the card area is clicked
             if (currentCard != null) {
                currentCard.flip();
             }
@@ -124,11 +150,23 @@ public class LearnSetPanel extends JPanel implements ActionListener {
       });
       this.add(cardPanel);
       
-      this.add(Box.createVerticalStrut(10));
+      this.add(Box.createVerticalStrut(8));
+      this.add(buildSeparator());
+      this.add(Box.createVerticalStrut(8));
+      this.add(Box.createVerticalGlue());
       
       JPanel buttonPanel = new JPanel();
-      buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
+      buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
       UIStyle.stylePanel(buttonPanel);
+      buttonPanel.setAlignmentX(CENTER_ALIGNMENT);
+      
+      JPanel navRow = new JPanel();
+      navRow.setLayout(new BoxLayout(navRow, BoxLayout.X_AXIS));
+      UIStyle.stylePanel(navRow);
+      
+      JPanel modeRow = new JPanel();
+      modeRow.setLayout(new BoxLayout(modeRow, BoxLayout.X_AXIS));
+      UIStyle.stylePanel(modeRow);
       
       // navigation buttons
       JButton prevButton = new JButton("Prev");
@@ -136,14 +174,16 @@ public class LearnSetPanel extends JPanel implements ActionListener {
       prevButton.addActionListener(this);
       prevButton.setFocusable(false);
       prevButton.setFocusPainted(false);
-      UIStyle.styleButton(prevButton, 90, 32);
+      UIStyle.styleButton(prevButton, 120, 40);
+      prevButton.setFont(UIStyle.BUTTON_FONT.deriveFont(Font.BOLD, 16f));
       
       JButton nextButton = new JButton("Next");
       nextButton.setActionCommand("next");
       nextButton.addActionListener(this);
       nextButton.setFocusable(false);
       nextButton.setFocusPainted(false);
-      UIStyle.styleButton(nextButton, 90, 32);
+      UIStyle.styleButton(nextButton, 120, 40);
+      nextButton.setFont(UIStyle.BUTTON_FONT.deriveFont(Font.BOLD, 16f));
       
       // shuffle button
       JButton shuffleButton = new JButton("Shuffle");
@@ -151,7 +191,8 @@ public class LearnSetPanel extends JPanel implements ActionListener {
       shuffleButton.addActionListener(this);
       shuffleButton.setFocusable(false);
       shuffleButton.setFocusPainted(false);
-      UIStyle.styleButton(shuffleButton, 110, 32);
+      UIStyle.styleButton(shuffleButton, 130, 40);
+      shuffleButton.setFont(UIStyle.BUTTON_FONT.deriveFont(Font.BOLD, 16f));
       
       // match button
       JButton matchButton = new JButton("Match");
@@ -159,7 +200,8 @@ public class LearnSetPanel extends JPanel implements ActionListener {
       matchButton.addActionListener(this);
       matchButton.setFocusable(false);
       matchButton.setFocusPainted(false);
-      UIStyle.styleButton(matchButton, 100, 32);
+      UIStyle.styleButton(matchButton, 120, 40);
+      matchButton.setFont(UIStyle.BUTTON_FONT.deriveFont(Font.BOLD, 16f));
       
       // back to catalog
       JButton backButton = new JButton("Back");
@@ -167,18 +209,28 @@ public class LearnSetPanel extends JPanel implements ActionListener {
       backButton.addActionListener(this);
       backButton.setFocusable(false);
       backButton.setFocusPainted(false);
-      UIStyle.styleButton(backButton, 90, 32);
+      UIStyle.styleButton(backButton, 110, 40);
+      backButton.setFont(UIStyle.BUTTON_FONT.deriveFont(Font.BOLD, 16f));
       
-      // add buttons with spacing (Back, Shuffle, Match, Prev, Next)
-      buttonPanel.add(backButton);
-      buttonPanel.add(Box.createHorizontalStrut(10));
-      buttonPanel.add(shuffleButton);
-      buttonPanel.add(Box.createHorizontalStrut(10));
-      buttonPanel.add(matchButton);
-      buttonPanel.add(Box.createHorizontalStrut(10));
-      buttonPanel.add(prevButton);
-      buttonPanel.add(Box.createHorizontalStrut(10));
-      buttonPanel.add(nextButton);
+      // add navigation buttons on the top row (Prev, Next)
+      navRow.add(Box.createHorizontalGlue());
+      navRow.add(prevButton);
+      navRow.add(Box.createHorizontalStrut(18));
+      navRow.add(nextButton);
+      navRow.add(Box.createHorizontalGlue());
+      
+      // add mode buttons on the bottom row (Back, Shuffle, Match)
+      modeRow.add(Box.createHorizontalGlue());
+      modeRow.add(backButton);
+      modeRow.add(Box.createHorizontalStrut(12));
+      modeRow.add(shuffleButton);
+      modeRow.add(Box.createHorizontalStrut(12));
+      modeRow.add(matchButton);
+      modeRow.add(Box.createHorizontalGlue());
+      
+      buttonPanel.add(navRow);
+      buttonPanel.add(Box.createVerticalStrut(8));
+      buttonPanel.add(modeRow);
       
       this.add(buttonPanel);
       
@@ -190,6 +242,7 @@ public class LearnSetPanel extends JPanel implements ActionListener {
       // keep focus on the panel so space flips the card and doesn't focus on the buttons
       this.requestFocusInWindow();
       
+      // show the panel once ready
       this.setVisible(true);
    }
    
@@ -197,13 +250,19 @@ public class LearnSetPanel extends JPanel implements ActionListener {
     * updateCard will rebuild the card area and progress label.
     */
    private void updateCard() {
+      // clear the old card before adding a new one
       cardPanel.removeAll();
       
       // get the current key/definition and build the flashcard
       String key = keys.get(currentIndex);
       String def = defs.get(currentIndex);
       currentCard = new Flashcard(key, def);
-      cardPanel.add(currentCard);
+      // add the flashcard to the centered panel
+      GridBagConstraints gbc = new GridBagConstraints();
+      gbc.gridx = 0;
+      gbc.gridy = 0;
+      gbc.anchor = GridBagConstraints.CENTER;
+      cardPanel.add(currentCard, gbc);
       
       // update progress label
       progressLabel.setText((currentIndex + 1) + " / " + keys.size());
@@ -211,6 +270,16 @@ public class LearnSetPanel extends JPanel implements ActionListener {
       // refresh the card panel
       cardPanel.revalidate();
       cardPanel.repaint();
+   }
+   
+   /**
+    * buildSeparator creates a thin divider for the layout.
+    */
+   private JSeparator buildSeparator() {
+      JSeparator separator = new JSeparator();
+      separator.setMaximumSize(new Dimension(MainFrame.WIDTH - 140, 2));
+      separator.setForeground(UIStyle.SOFT_OUTLINE);
+      return separator;
    }
    
    /**
@@ -236,9 +305,10 @@ public class LearnSetPanel extends JPanel implements ActionListener {
          newDefs.add(defs.get(idx));
       }
       
-      // overwrite
+      // overwrite the lists with the new order
       keys = newKeys;
       defs = newDefs;
+      // reset to the first card
       currentIndex = 0;
    }
    

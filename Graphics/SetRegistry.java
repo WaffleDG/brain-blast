@@ -30,6 +30,7 @@ public class SetRegistry {
     * Constructor for a SetRegistry instance.
     */
    public SetRegistry() {
+      // initialize empty lists so callers can use them immediately
       keys = new ArrayList<String>();
       defs = new ArrayList<String>();
    }
@@ -38,17 +39,20 @@ public class SetRegistry {
     * getSetNames finds all .txt files in the Sets directory and returns their base names.
     */
    public ArrayList<String> getSetNames() {
+      // build a list of base file names from the Sets directory
       ArrayList<String> results = new ArrayList<String>();
       
       // find the sets directory
       File setsDir = new File(Paths.SETS_DIR);
       if (!setsDir.exists() || !setsDir.isDirectory()) {
+         // no directory means there are no saved sets
          return results;
       }
       
       // list all files inside
       File[] files = setsDir.listFiles();
       if (files == null) {
+         // directory couldn't be read
          return results;
       }
       
@@ -57,6 +61,7 @@ public class SetRegistry {
       for (int i = 0; i < files.length; i++) {
          File f = files[i];
          if (!f.isFile()) {
+            // skip folders or non-files
             continue;
          }
          
@@ -70,6 +75,7 @@ public class SetRegistry {
          results.add(name.substring(0, name.length() - 4));
       }
       
+      // return the collected base names
       return results;
    }
    
@@ -80,6 +86,7 @@ public class SetRegistry {
       // create the File object
       setFile = new File(filePath);
       
+      // debug info for file resolution
       System.out.println("Trying to load: " + setFile.getAbsolutePath());
       System.out.println("Exists? " + setFile.exists());
       System.out.println("Is file? " + setFile.isFile());
@@ -108,7 +115,6 @@ public class SetRegistry {
                   continue;
                }
                
-               // get the next line and split it into parts separated by a tab "\t": inputted as "\\t" so .split can read it
                // split by the first tab only; anything after stays in the definition
                String[] parts = thisLine.split("\\t", 2);
                
@@ -122,10 +128,12 @@ public class SetRegistry {
                }
             }
             
-            fileReader.close(); // close the scanner
+            // close the scanner
+            fileReader.close();
          }
       }
       catch (IOException ioe) {
+         // log the error so we can diagnose file issues
          ioe.printStackTrace();
          System.err.println("Warning: failed to read or create set file: " + setFile.getPath());
          // initialize defaults so UI can still be shown
@@ -139,6 +147,7 @@ public class SetRegistry {
     * loadSet reads a set from the Sets directory by name.
     */
    public void loadSet(String setName) {
+      // delegate to loadFile using the standard folder
       loadFile(Paths.SETS_DIR + "/" + setName + ".txt");
    }
    
@@ -146,6 +155,7 @@ public class SetRegistry {
     * getSetFile returns the most recently loaded file.
     */
    public File getSetFile() {
+      // expose the file for saving/renaming
       return setFile;
    }
    
@@ -153,6 +163,7 @@ public class SetRegistry {
     * getKeys returns the keys from the most recently loaded set.
     */
    public ArrayList<String> getKeys() {
+      // expose the loaded keys
       return keys;
    }
    
@@ -160,6 +171,7 @@ public class SetRegistry {
     * getDefs returns the definitions from the most recently loaded set.
     */
    public ArrayList<String> getDefs() {
+      // expose the loaded definitions
       return defs;
    }
 }
