@@ -212,22 +212,9 @@ public class FindSet extends JPanel implements ActionListener {
      | |__| |__| |__| |__| |__|  || |
      |______________________________|
      
-*/
 
-//find it on the page (all existing sets pop up in the grid with the title in the grid box
-// (potential cover pic for each grid box later))
-    //click on a set (each is a button)
-    //open to see options of what you can do with the set (can edit, quiz (given key or given definition), review)
-    //each is a button which then leads to a new panel
 
-//button to click to access an existing set
 
-    // OR
-
-//search by name
-
-    //not needed if using FlowLayout
-    //counts number of sets based on number of saved names in the list of set names
    /** Override for actionPerformed */
    @Override
    public void actionPerformed(ActionEvent e) {
@@ -299,6 +286,7 @@ public class FindSet extends JPanel implements ActionListener {
                setButton.doClick();
             }
          });
+
          GridBagConstraints gbc = new GridBagConstraints();
          gbc.gridx = 0;
          gbc.gridy = 0;

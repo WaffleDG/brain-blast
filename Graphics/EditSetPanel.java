@@ -72,7 +72,8 @@ public class EditSetPanel extends JPanel implements ActionListener {
 
 
    /**
-    * Constructor which takes a file name, reads the file or creates one if not already existing, loads the set and the graphics from that.
+    * Constructor which takes a file name, reads the file or creates one if not already existing,
+    * loads the set and the graphics from that.
     */
    public EditSetPanel(String fileName) {
       // build a path for the requested set file
@@ -165,7 +166,7 @@ public class EditSetPanel extends JPanel implements ActionListener {
       // limit the height of the header.
       header.setMaximumSize(new Dimension(Integer.MAX_VALUE, header.getPreferredSize().height));
       
-      ////////////////////////////////////////////// BODY //////////////////////////////////////////////
+      /////////////////////////////////////////// BODY //////////////////////////////////////////////
      
       // create a panel to hold the key and definition panels
       JPanel bodyPanel = new JPanel();
@@ -271,8 +272,7 @@ public class EditSetPanel extends JPanel implements ActionListener {
       this.setVisible(true);
    }
    
-   
-   
+
    /**
     * This method adds new text areas to the key and definition, and should be triggered solely by the
     * constructor and the add another button action.
@@ -409,8 +409,7 @@ public class EditSetPanel extends JPanel implements ActionListener {
       keyPanel.repaint();
       defPanel.repaint();
    }
-   
-   
+
    /**
     * saveFile does just that! Save to file. It will handle renaming and writing to file.
     */
@@ -433,6 +432,7 @@ public class EditSetPanel extends JPanel implements ActionListener {
       
       // if the file has been renamed (names !=), and already exists,
       if (!(renamedFile.getName().equals(setFile.getName())) && renamedFile.exists()) {
+
          // we need to find the file that doesn't.
          // luckily, I made a method for that!
          renamedFile = new File(dir + newUnexistingFileName(renameFileText) + ".txt");
@@ -518,10 +518,7 @@ public class EditSetPanel extends JPanel implements ActionListener {
       return (fileName + counter);
    }
   
-  
-  
-   
-   
+
    
    /** Override for actionPerformed */
    @Override
@@ -571,7 +568,4 @@ public class EditSetPanel extends JPanel implements ActionListener {
       rebuildPanels();
    }
    
-   
-   
-   // (test main removed) central startup is MainFrame.main
-}  
+}

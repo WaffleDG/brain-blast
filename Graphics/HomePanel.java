@@ -19,7 +19,7 @@ import java.io.IOException;
 
 /**
  * Defines the Home panel for Brain Blast! This will feature buttons to allow the user to change frames to the
- * "Set creation" screen and the "see other created sets" screen. This is an instance of a JPanel.
+ * "Create a Set" screen and the "View Sets" screen. This is an instance of a JPanel.
  * It will be loaded in the JFrame that defines the window. It implements ActionListener for button support.
  *
  * <p>

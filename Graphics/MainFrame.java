@@ -4,7 +4,7 @@ import java.awt.CardLayout;
 
 /**
  * The frame which is going to be viewed as the app BrainBlast. This is a JFrame and is the screen which is going 
- * to be viewed. It has a private JPanel which will be the controller for all of the other panels, including the HomePanel
+ * to be viewed. It has a private JPanel which will be the controller for all other panels, including the HomePanel
  * and the SetPanel.
  *
  * <p>
