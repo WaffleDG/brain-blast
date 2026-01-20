@@ -103,6 +103,8 @@ public class QuizPanel extends JPanel implements ActionListener {
    private JCheckBox frqCheck;
    /** Private flag for quiz finished state */
    private boolean quizFinished;
+   /** Private flag for user-canceled setup */
+   private boolean quizCanceled;
    
    /**
     * Constructor for the quiz screen.
@@ -367,6 +369,10 @@ public class QuizPanel extends JPanel implements ActionListener {
       // ask the user how they want the quiz to run
       // this uses a small panel with a slider and checkboxes
       configureQuiz();
+      if (quizCanceled) {
+         // user canceled setup; do not continue building the quiz
+         return;
+      }
       score = 0;
       loadQuestion();
       setupKeyBinds();
@@ -447,11 +453,9 @@ public class QuizPanel extends JPanel implements ActionListener {
          JOptionPane.OK_CANCEL_OPTION
       );
       
-      // if the user cancels, keep defaults (full length, both types)
+      // if the user cancels, mark canceled so the caller can exit
       if (result != JOptionPane.OK_OPTION) {
-         totalQuestions = order.size();
-         allowMultipleChoice = true;
-         allowWritten = true;
+         quizCanceled = true;
          return;
       }
       
@@ -467,6 +471,13 @@ public class QuizPanel extends JPanel implements ActionListener {
          allowMultipleChoice = true;
          allowWritten = true;
       }
+   }
+
+   /**
+    * isCanceled reports whether the user canceled quiz setup.
+    */
+   public boolean isCanceled() {
+      return quizCanceled;
    }
    
    /**
