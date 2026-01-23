@@ -83,11 +83,14 @@ public class Flashcard extends JPanel implements ActionListener {
       JScrollPane textScroll = new JScrollPane(textWrapper);
       textScroll.setBorder(null);
       textScroll.setOpaque(false);
+
       // keep the viewport white so text stays visible
       textScroll.getViewport().setOpaque(true);
       textScroll.getViewport().setBackground(Color.WHITE);
+
       // never allow horizontal scroll; wrap instead
       textScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+      
       // only show vertical scroll when content is long
       textScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
       
@@ -133,16 +136,24 @@ public class Flashcard extends JPanel implements ActionListener {
    
    /**
     * CenteredScrollPanel centers short text and allows scrolling when text is long.
+    * This wrapper exists because a plain JScrollPane won't vertically center short content.
+    * It implements Scrollable hints so the viewport behaves like a fixed-height card.
     */
    private static class CenteredScrollPanel extends JPanel implements Scrollable {
+      /** The wrapped text pane that handles word wrapping. */
       private final CenteredWrapTextPane textPane;
       
+      /**
+       * Builds a white, centered container for the wrapped text.
+       * The GridBagLayout lets us keep the text centered even when it's short.
+       */
       private CenteredScrollPanel(CenteredWrapTextPane textPane) {
          super(new GridBagLayout());
          this.textPane = textPane;
          setOpaque(true);
          setBackground(Color.WHITE);
          
+         // Center the text pane in both axes.
          GridBagConstraints gbc = new GridBagConstraints();
          gbc.gridx = 0;
          gbc.gridy = 0;
@@ -152,37 +163,45 @@ public class Flashcard extends JPanel implements ActionListener {
       
       @Override
       public Dimension getPreferredSize() {
+         // Respect the wrapped text height, but never shrink below the minimum.
          Dimension pref = textPane.getPreferredSize();
          int h = Math.max(TEXT_MIN_HEIGHT, pref.height);
+         // Width is fixed so the card layout remains consistent.
          return new Dimension(TEXT_WIDTH, h);
       }
       
       @Override
       public Dimension getPreferredScrollableViewportSize() {
+         // Gives the scroll pane a stable viewport for consistent centering.
          return new Dimension(TEXT_WIDTH, TEXT_MIN_HEIGHT);
       }
       
       @Override
       public int getScrollableUnitIncrement(java.awt.Rectangle visibleRect, int orientation, int direction) {
+         // Small step size keeps scroll feeling like line-by-line movement.
          return 16;
       }
       
       @Override
       public int getScrollableBlockIncrement(java.awt.Rectangle visibleRect, int orientation, int direction) {
+         // Larger step size for faster page-like scrolling.
          return 48;
       }
       
       @Override
       public boolean getScrollableTracksViewportWidth() {
+         // Always match the viewport width to avoid horizontal scrolling.
          return true;
       }
       
       @Override
       public boolean getScrollableTracksViewportHeight() {
+         // If the viewport is taller than content, stretch so text stays centered.
          if (getParent() instanceof javax.swing.JViewport) {
             int viewportH = ((javax.swing.JViewport) getParent()).getHeight();
             return viewportH > getPreferredSize().height;
          }
+         // Otherwise allow the scroll pane to handle the height.
          return false;
       }
    }
