@@ -128,8 +128,14 @@ public class MainFrame extends JFrame {
    public static void loadQuizSet(String setName) {
       // debug log so we know which set is being quizzed
       System.out.println("recieved: quiz " + setName);
+      // build the quiz panel so we can respect cancel in setup
+      QuizPanel quizPanel = new QuizPanel(setName);
+      if (quizPanel.isCanceled()) {
+         // stay on the current screen if setup was canceled
+         return;
+      }
       // overwrite the "quiz" card with the requested set
-      mainPanel.add(new QuizPanel(setName), "quiz");
+      mainPanel.add(quizPanel, "quiz");
       
       // show the quiz screen
       cl.show(mainPanel, "quiz");
