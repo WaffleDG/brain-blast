@@ -197,25 +197,7 @@ public class FindSet extends JPanel implements ActionListener {
    }
 
 
-/*               find set
-               search by name
-     ________________________________
-     | ____ ____ ____ ____ ____  || | //has all existing sets in it, can scroll to click one (5 in a row, 100 in a column)
-     | |__| |__| |__| |__| |___| || |
-     | ____ ____ ____ ____ ____  || |
-     | |__| |__| |__| |__| |__|  || |
-     | ____ ____ ____ ____ ____  || |
-     | |__| |__| |__| |__| |__|  || |
-     | ____ ____ ____ ____ ____  || |
-     | |__| |__| |__| |__| |__|  || |
-     | ____ ____ ____ ____ ____  || |
-     | |__| |__| |__| |__| |__|  || |
-     |______________________________|
-     
-
-
-
-   /** Override for actionPerformed */
+   // Override for actionPerformed
    @Override
    public void actionPerformed(ActionEvent e) {
       String message = e.getActionCommand();
@@ -235,9 +217,7 @@ public class FindSet extends JPanel implements ActionListener {
       }
    }
    
-   /**
-    * buildSeparator creates a thin divider for the layout.
-    */
+   // buildSeparator creates a thin divider for the layout.
    private JSeparator buildSeparator() {
       JSeparator separator = new JSeparator();
       separator.setMaximumSize(new Dimension(MainFrame.WIDTH - 140, 2));
@@ -245,9 +225,7 @@ public class FindSet extends JPanel implements ActionListener {
       return separator;
    }
    
-   /**
-    * rebuildButtons will refresh the grid based on the filter text.
-    */
+   // rebuildButtons will refresh the grid based on the filter text.
    private void rebuildButtons(String filterText) {
       // normalize the filter so matching is case-insensitive
       String filter = filterText.toLowerCase().trim();
@@ -331,9 +309,7 @@ public class FindSet extends JPanel implements ActionListener {
       }
    }
 
-   /**
-    * showActionMenu opens a popout menu for the selected set.
-    */
+   // showActionMenu opens a popout menu for the selected set.
    private void showActionMenu(String setName) {
       // reverse order so the GUI shows learn -> cancel
       String[] options = {"Cancel", "Delete", "Edit", "Quiz", "Learn"};

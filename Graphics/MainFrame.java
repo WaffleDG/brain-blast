@@ -28,9 +28,7 @@ public class MainFrame extends JFrame {
    /** The height of the screen. */
    public static final int HEIGHT = 768;
 
-   /**
-    * Constructor for the frame.
-    */
+   // Constructor for the frame
    public MainFrame() {
       // graphics specifications:
       // keep a fixed-size window for layout stability
@@ -49,9 +47,8 @@ public class MainFrame extends JFrame {
       this.setVisible(true);
    }
    
-   /**
-    * This function will load all of the other screens (panels) and group them into one.
-    */
+   // This function will load all of the other screens (panels) and group them into one.
+
    private static void prepareMainPanel() {
       // the implementation adds all screens to the main panel container
       // the CardLayout lets us swap screens by name
@@ -60,9 +57,6 @@ public class MainFrame extends JFrame {
       // then add the panels
       mainPanel.add(new HomePanel(), "home"); // this is the first added, by default will be visible first.
       mainPanel.add(new FindSet(), "catalog");
-      
-      // how to swap
-      // cl.show(mainPanel, "test");
    
       // mark ready for display
       mainPanel.setVisible(true);
@@ -107,12 +101,11 @@ public class MainFrame extends JFrame {
       cl.show(mainPanel, "edit");
    }
    
-   /** 
-    * the loadLearnSet method creates a new LearnSetPanel and sets it to the visible screen.
-    */
+   // the loadLearnSet method creates a new LearnSetPanel and sets it to the visible screen.
+
    public static void loadLearnSet(String setName) {
       // debug log so we know which set is being studied
-      System.out.println("recieved: learn " + setName);
+      System.out.println("received: learn " + setName);
       // overwrite the "learn" card with the requested set
       mainPanel.add(new LearnSetPanel(setName), "learn");
       
@@ -120,12 +113,10 @@ public class MainFrame extends JFrame {
       cl.show(mainPanel, "learn");
    }
    
-   /** 
-    * the loadMatchSet method creates a new MatchPanel and sets it to the visible screen.
-    */
+   // the loadMatchSet method creates a new MatchPanel and sets it to the visible screen.
    public static void loadMatchSet(String setName) {
       // debug log so we know which set is being matched
-      System.out.println("recieved: match " + setName);
+      System.out.println("received: match " + setName);
       // overwrite the "match" card with the requested set
       mainPanel.add(new MatchPanel(setName), "match");
       
@@ -133,9 +124,7 @@ public class MainFrame extends JFrame {
       cl.show(mainPanel, "match");
    }
    
-   /** 
-    * the loadQuizSet method creates a new QuizPanel and sets it to the visible screen.
-    */
+   // the loadQuizSet method creates a new QuizPanel and sets it to the visible screen.
    public static void loadQuizSet(String setName) {
       // debug log so we know which set is being quizzed
       System.out.println("recieved: quiz " + setName);
@@ -145,7 +134,6 @@ public class MainFrame extends JFrame {
       // show the quiz screen
       cl.show(mainPanel, "quiz");
    }
-   
    
    // this is for testing (preferred entry point is BrainBlast.main)
    public static void main(String[] args) {

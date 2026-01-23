@@ -29,7 +29,7 @@ import java.io.IOException;
  * Version: 1.0, 11/17/2025.
  *
  * 
- * @author     Gregory Cohen and Riya Jonalla
+ * @author     Gregory Cohen and Riya Jonnala
  * @since      11/16/2025
  * @version    1.0
  * @see        JPanel
@@ -40,9 +40,7 @@ public class HomePanel extends JPanel implements ActionListener {
    /** variable for the logo image */
    private static BufferedImage logoImage;
 
-   /**
-    * The HomePanel will be the exact same every time, featuring a background, screen, and buttons as described above.
-    */
+   // The HomePanel will be the exact same every time, featuring a background, screen, and buttons as described above.
    public HomePanel() {
       // load images needed for this screen before layout
       loadAssets();
@@ -53,7 +51,7 @@ public class HomePanel extends JPanel implements ActionListener {
       // add some vertical glue to center objects in the layout
       this.add(Box.createVerticalGlue());
       
-      ///// Body of HomePanel
+      // Body of HomePanel
       // add the logo image, scaled without stretching
       JLabel logoIcon = new JLabel(scaleIconToFit(logoImage, 420, 300));
       // center the logo within the column
@@ -96,20 +94,19 @@ public class HomePanel extends JPanel implements ActionListener {
       this.setVisible(true);
    }
    
-   /**
-    * This will load all assets (images) for this panel.
-    */
+   // This will load all assets (images) for this panel.
+
    private static void loadAssets() {
       // as with anything that deals with files, IOExceptions need to be caught.
       try {
-         /// background image
+         // background image
          // create the file
          File bgSource = new File(Paths.ASSETS_DIR, "HomePanel Background.png");
          
          // read it as a BufferedImage
          backgroundImage = ImageIO.read(bgSource);
          
-         /// logo image
+         // logo image
          // create the file
          File logoSource = new File(Paths.ASSETS_DIR, "Brain Blast Logo.png");
          
@@ -129,9 +126,7 @@ public class HomePanel extends JPanel implements ActionListener {
       }
    }
    
-   /** 
-    * Override for the actionPerformed method which listens for the messages that are sent by the buttons 
-    */
+   // Override for the actionPerformed method which listens for the messages that are sent by the buttons
    @Override
    public void actionPerformed(ActionEvent e) {
       // forward the action command to the main screen manager
@@ -141,9 +136,7 @@ public class HomePanel extends JPanel implements ActionListener {
       MainFrame.switchScreen(e.getActionCommand());
    }
    
-   /** 
-    * Override for the method that controls the panel's appearance to hard-code a background image.
-    */
+   //Override for the method that controls the panel's appearance to hard-code a background image.
    @Override
    protected void paintComponent(Graphics g) {
       // let Swing paint the background and child components
@@ -158,9 +151,7 @@ public class HomePanel extends JPanel implements ActionListener {
       g2.dispose();
    }
    
-   /**
-    * scaleIconToFit keeps the logo's aspect ratio while fitting a box.
-    */
+   // scaleIconToFit keeps the logo's aspect ratio while fitting a box.
    private static ImageIcon scaleIconToFit(BufferedImage image, int maxW, int maxH) {
       int imgW = image.getWidth();
       int imgH = image.getHeight();

@@ -61,15 +61,11 @@ public class EditSetPanel extends JPanel implements ActionListener {
    /** Private static final variable for the directory */
    private static final String dir = Paths.SETS_DIR + "/";
    
-   /**
-    * Constructor without filePath for when the file is just created - standard name is Unnamed Set #
-    */
+   //Constructor without filePath for when the file is just created - standard name is Unnamed Set #
    public EditSetPanel() {
       // call the other constructor with this file.
       this(newUnexistingFileName());
    }
-   
-
 
    /**
     * Constructor which takes a file name, reads the file or creates one if not already existing,
@@ -120,6 +116,7 @@ public class EditSetPanel extends JPanel implements ActionListener {
       this.add(Box.createVerticalStrut(5));
      
       ////////////////////////////////////////////// HEADER //////////////////////////////////////////////
+
       JPanel header = new JPanel();
       UIStyle.stylePanel(header);
      
@@ -127,8 +124,8 @@ public class EditSetPanel extends JPanel implements ActionListener {
       header.setLayout(new BoxLayout(header, BoxLayout.X_AXIS));
      
       // creating two JButtons: one to close and one to save
-      JButton closeButton = new JButton("close"); // TO DO: make an icon ************************************************
-      JButton saveButton = new JButton("save"); // TO DO: make an icon **************************************************
+      JButton closeButton = new JButton("close");
+      JButton saveButton = new JButton("save");
       UIStyle.styleButton(closeButton, 90, 32);
       UIStyle.styleButton(saveButton, 90, 32);
       closeButton.setFocusable(false);
@@ -154,10 +151,12 @@ public class EditSetPanel extends JPanel implements ActionListener {
       // fill the header panel
       header.add(Box.createHorizontalStrut(5));
       header.add(closeButton);
+
       // space
       header.add(Box.createHorizontalGlue());
       header.add(renameLabel);
       header.add(renameFileBox);
+
       // space
       header.add(Box.createHorizontalGlue());
       header.add(saveButton);
@@ -217,9 +216,8 @@ public class EditSetPanel extends JPanel implements ActionListener {
       
       // let the columns fill the viewport so the divider spans the full height
       bodyPanel.add(columnsPanel, BorderLayout.CENTER);
-      
-      
-      // create a scrollpane for body panel
+
+      // create a scrollPane for body panel
       JScrollPane bodyScroll = new JScrollPane(bodyPanel);
       bodyScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
       bodyScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
@@ -271,7 +269,7 @@ public class EditSetPanel extends JPanel implements ActionListener {
       // show the panel once initialized
       this.setVisible(true);
    }
-   
+
 
    /**
     * This method adds new text areas to the key and definition, and should be triggered solely by the
@@ -283,9 +281,7 @@ public class EditSetPanel extends JPanel implements ActionListener {
       rebuildPanels();
    }
    
-   /**
-    * addPairData creates and stores a new pair without touching the panel layout.
-    */
+   // addPairData creates and stores a new pair without touching the panel layout.
    private void addPairData(String key, String definition) {
       // create new JTextAreas for the key and value
       JTextArea keyArea = new JTextArea(4, 20);
@@ -307,9 +303,7 @@ public class EditSetPanel extends JPanel implements ActionListener {
       definitionsList.add(defArea);
    }
    
-   /**
-    * rebuildPanels redraws the key/definition columns based on the saved pairs.
-    */
+   // rebuildPanels redraws the key/definition columns based on the saved pairs.
    private void rebuildPanels() {   
       // clear existing components
       keyPanel.removeAll();
@@ -348,16 +342,14 @@ public class EditSetPanel extends JPanel implements ActionListener {
       keyPanel.setPreferredSize(new Dimension(colW, keySize.height));
       defPanel.setPreferredSize(new Dimension(colW, defSize.height));
       
-      // revalidate/repaint the panels.
+      // revalidate/repaint the panels
       keyPanel.revalidate();
       defPanel.revalidate();
       keyPanel.repaint();
       defPanel.repaint();
    }
    
-   /**
-    * addPairComponents adds the visual components for a single pair.
-    */
+   // addPairComponents adds the visual components for a single pair
    private void addPairComponents(JTextArea keyArea, JTextArea defArea) {   
       // padding
       keyPanel.add(Box.createVerticalStrut(5));
@@ -366,6 +358,7 @@ public class EditSetPanel extends JPanel implements ActionListener {
       // line separator
       JSeparator keySep = new JSeparator(SwingConstants.HORIZONTAL);
       JSeparator defSep = new JSeparator(SwingConstants.HORIZONTAL);
+
       // keep separators from stretching and pushing content down
       keySep.setMaximumSize(new Dimension(Integer.MAX_VALUE, keySep.getPreferredSize().height));
       defSep.setMaximumSize(new Dimension(Integer.MAX_VALUE, defSep.getPreferredSize().height));
@@ -410,9 +403,7 @@ public class EditSetPanel extends JPanel implements ActionListener {
       defPanel.repaint();
    }
 
-   /**
-    * saveFile does just that! Save to file. It will handle renaming and writing to file.
-    */
+   // saveFile does just that! Save to file. It will handle renaming and writing to file.
    public void saveFile() {
       // sanitize the renameFileTextBox
       String renameFileText = renameFileBox.getText();
@@ -430,7 +421,7 @@ public class EditSetPanel extends JPanel implements ActionListener {
       // rename file (if applicable): get the file that corresponds to the text saved in the renameFileBox
       File renamedFile = new File(dir + renameFileText + ".txt");
       
-      // if the file has been renamed (names !=), and already exists,
+      // if the file has been renamed (names !=), and already exists
       if (!(renamedFile.getName().equals(setFile.getName())) && renamedFile.exists()) {
 
          // we need to find the file that doesn't.
@@ -484,20 +475,15 @@ public class EditSetPanel extends JPanel implements ActionListener {
       }
       
    }
-    
-   
-   
-   /** 
-    * this is an overload for the newUnexistingFileName which takes nothing. Default: Unnamed Set
-    */
+
+
+   // This is an overload for the newUnexistingFileName which takes nothing. Default: Unnamed Set
    public static String newUnexistingFileName() {
       // default base name for new sets
       return newUnexistingFileName("Unnamed Set");
    }
    
-   /**
-    * newUnexistingFileName finds the next unique file name with the start "baseFileName" as a txt.
-    */
+   // newUnexistingFileName finds the next unique file name with the start "baseFileName" as a txt
    public static String newUnexistingFileName(String baseFileName) {
       // finding a fileName that will work -- checks if 1 exists, if not, checks if 2 exists, and so on
       // keeping track of counter and file name
@@ -517,7 +503,6 @@ public class EditSetPanel extends JPanel implements ActionListener {
       // return the first unused base name
       return (fileName + counter);
    }
-  
 
    
    /** Override for actionPerformed */
@@ -544,9 +529,7 @@ public class EditSetPanel extends JPanel implements ActionListener {
       }
    }
    
-   /**
-    * clearEmptyRows removes any pairs that have no key and no definition.
-    */
+   // clearEmptyRows removes any pairs that have no key and no definition.
    private void clearEmptyRows() {
       for (int i = keysList.size() - 1; i >= 0; i--) {
          String key = keysList.get(i).getText().trim();
