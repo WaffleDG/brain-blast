@@ -158,11 +158,13 @@ public class FindSet extends JPanel implements ActionListener {
       JPanel gridRow = new JPanel();
       gridRow.setLayout(new BoxLayout(gridRow, BoxLayout.X_AXIS));
       UIStyle.styleCardPanel(gridRow);
+
       // horizontal glue keeps the grid centered
       gridRow.add(Box.createHorizontalGlue());
       gridRow.add(panelOfSets);
       gridRow.add(Box.createHorizontalGlue());
       gridRow.setAlignmentX(CENTER_ALIGNMENT);
+
       // keep the grid anchored to the top of the scroll view
       gridWrapper.add(gridRow);
       gridWrapper.add(Box.createVerticalGlue());
@@ -365,5 +367,4 @@ public class FindSet extends JPanel implements ActionListener {
       }
       // no action for cancel
    }
-
 }

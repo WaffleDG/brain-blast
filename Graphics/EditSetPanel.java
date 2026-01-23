@@ -470,7 +470,6 @@ public class EditSetPanel extends JPanel implements ActionListener {
          pr.close();
       }
       catch (FileNotFoundException fnfe) {
-         // report errors so they are visible during testing
          fnfe.printStackTrace();
       }
       
@@ -524,7 +523,6 @@ public class EditSetPanel extends JPanel implements ActionListener {
          UIStyle.showMessageDialog(this, "Changes Saved!", "Saved", javax.swing.JOptionPane.INFORMATION_MESSAGE);
       }
       else if (message.equals("close")) {
-         // TO DO: make panel to do are you sure?
          MainFrame.switchScreen("home");
       }
    }
@@ -550,5 +548,4 @@ public class EditSetPanel extends JPanel implements ActionListener {
       // rebuild the UI to reflect removals
       rebuildPanels();
    }
-   
-}
+}  
