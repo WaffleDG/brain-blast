@@ -19,6 +19,11 @@ import java.util.Scanner;
  * @version    1.0
  */
 public class SetRegistry {
+   /** Directory for saved sets. */
+   public static final String SETS_DIR = "Sets";
+   /** Directory for assets. */
+   public static final String ASSETS_DIR = "Graphics/Assets";
+
    /** Private file for the loaded set */
    private File setFile;
    /** Private list of keys for the loaded set */
@@ -43,7 +48,7 @@ public class SetRegistry {
       ArrayList<String> results = new ArrayList<String>();
       
       // find the sets directory
-      File setsDir = new File(Paths.SETS_DIR);
+      File setsDir = new File(SETS_DIR);
       if (!setsDir.exists() || !setsDir.isDirectory()) {
          // no directory means there are no saved sets
          return results;
@@ -148,7 +153,16 @@ public class SetRegistry {
     */
    public void loadSet(String setName) {
       // delegate to loadFile using the standard folder
-      loadFile(Paths.SETS_DIR + "/" + setName + ".txt");
+      loadFile(SETS_DIR + "/" + setName + ".txt");
+   }
+
+   /**
+    * Builds a File object for a set file based on the base name.
+    */
+   public static File setFile(String setName) {
+      // map the set name to a .txt file in the Sets directory
+      // this keeps file path logic in one place
+      return new File(SETS_DIR + "/" + setName + ".txt");
    }
    
    /**

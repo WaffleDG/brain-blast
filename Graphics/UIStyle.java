@@ -183,7 +183,7 @@ public class UIStyle {
          return dialogIcon;
       }
       try {
-         File logoFile = new File(Paths.ASSETS_DIR, "Brain Blast Logo.png");
+         File logoFile = new File(SetRegistry.ASSETS_DIR, "Brain Blast Logo.png");
          BufferedImage img = ImageIO.read(logoFile);
          if (img != null) {
             dialogIcon = scaleIconToFit(img, 64, 64);

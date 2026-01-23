@@ -353,7 +353,7 @@ public class FindSet extends JPanel implements ActionListener {
          
          if (confirm == 1) {
             // attempt to delete the file and refresh if successful
-            File setFile = Paths.setFile(setName);
+            File setFile = SetRegistry.setFile(setName);
             if (setFile.exists() && setFile.delete()) {
                // refresh list after delete
                setNames = registry.getSetNames();

@@ -59,7 +59,7 @@ public class EditSetPanel extends JPanel implements ActionListener {
    private JPanel defPanel;
    
    /** Private static final variable for the directory */
-   private static final String dir = Paths.SETS_DIR + "/";
+   private static final String dir = SetRegistry.SETS_DIR + "/";
    
    //Constructor without filePath for when the file is just created - standard name is Unnamed Set #
    public EditSetPanel() {
